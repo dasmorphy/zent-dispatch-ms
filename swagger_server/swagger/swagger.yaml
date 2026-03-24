@@ -1,0 +1,262 @@
+openapi: 3.0.3
+info:
+  title: zent-dispatch-ms
+  description: Dispatch microservice
+  version: 1.0.0
+servers:
+- url: /rest/zent-dispatch-api/v1.0/
+paths:
+  /status-dispatch:
+    get:
+      tags:
+      - Catalogs
+      summary: Obtiene todos los estados de despacho
+      description: Devuelve todos los estados de la base
+      operationId: get_status_dispatch
+      parameters:
+      - name: externalTransactionId
+        in: header
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          example: fcea920f7412b5da7be0cf42b8c93759
+      - name: channel
+        in: header
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          example: ZENTINEL
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResponseError"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResponseError"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResponseError"
+        "503":
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResponseError"
+      x-openapi-router-controller: swagger_server.controllers.dispatch_controller.DispatchView
+  /dispatch:
+    put:
+      tags:
+      - Dispatch
+      summary: Actualiza el despacho en la base de datos.
+      description: Actualiza de despacho
+      operationId: update_dispatch
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RequestDispatch"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResponseError"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResponseError"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResponseError"
+        "503":
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResponseError"
+      x-openapi-router-controller: swagger_server.controllers.dispatch_controller.DispatchView
+    post:
+      tags:
+      - Dispatch
+      summary: Guarda el despacho en la base de datos.
+      description: Guardado de despacho
+      operationId: post_dispatch
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/RequestDispatch"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResponseError"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResponseError"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResponseError"
+        "503":
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResponseError"
+      x-openapi-router-controller: swagger_server.controllers.dispatch_controller.DispatchView
+components:
+  schemas:
+    GenericResponse:
+      properties:
+        data:
+          type: object
+          nullable: true
+          example: Estructura generica.
+        errorCode:
+          type: integer
+          example: 0
+        message:
+          type: string
+          example: Mensaje generico.
+        internalTransactionId:
+          type: string
+          example: d290f1ee-6c54-4b01-90e6-d701748f0851
+        externalTransactionId:
+          type: string
+          example: fcea920f7412b5da7be0cf42b8c93759
+      example:
+        errorCode: 0
+        internalTransactionId: d290f1ee-6c54-4b01-90e6-d701748f0851
+        externalTransactionId: fcea920f7412b5da7be0cf42b8c93759
+        message: Mensaje generico.
+        data: {}
+    ResponseError:
+      type: object
+      properties:
+        errorCode:
+          type: integer
+        internalTransactionId:
+          type: string
+        externalTransactionId:
+          type: string
+        message:
+          type: string
+    RequestGeneric:
+      properties:
+        channel:
+          type: string
+          example: ZENTINEL
+        externalTransactionId:
+          type: string
+          example: fcea920f7412b5da7be0cf42b8c9375
+    RequestDispatch:
+      properties:
+        dispatch_data:
+          $ref: "#/components/schemas/RequestDispatch_dispatch_data"
+        channel:
+          type: string
+          example: ZENTINEL
+        externalTransactionId:
+          type: string
+          example: fcea920f7412b5da7be0cf42b8c93759
+    RequestDispatch_dispatch_data_products_sku:
+      type: object
+      properties:
+        id_product:
+          type: integer
+          example: 1
+        quantiy:
+          type: number
+          example: 10
+    RequestDispatch_dispatch_data:
+      type: object
+      properties:
+        weight:
+          type: number
+          format: double
+          example: 2000000.75
+        vehicle_type:
+          type: integer
+          example: 1
+        sku_type:
+          type: string
+          example: Multiple
+        presentation_type:
+          type: string
+          example: Tulas
+        destiny:
+          type: integer
+          example: 1
+        status_id:
+          type: integer
+          nullable: true
+          example: 1
+        truck_license:
+          type: string
+          example: GME-511
+        user:
+          type: string
+          example: dmales
+        driver:
+          type: string
+          example: Daniel
+        images:
+          maxItems: 10
+          type: array
+          items:
+            type: string
+            format: binary
+        products_sku:
+          type: array
+          items:
+            $ref: "#/components/schemas/RequestDispatch_dispatch_data_products_sku"
+        observations:
+          type: string
+          nullable: true
+          example: N/A
+

@@ -24,19 +24,21 @@ class Dispatch(Base):
     status_id = Column(
         Integer,
         ForeignKey('public.dispatch_status.id_status', onupdate='NO ACTION', ondelete='NO ACTION'),
-        nullable=False
+    )
+
+    sku_id = Column(
+        Integer,
+        ForeignKey('public.dispatch_skus.id_sku', onupdate='NO ACTION', ondelete='NO ACTION'),
     )
 
     vehicle_type_id = Column(
         Integer,
         ForeignKey('public.vehicle_type.id_vehicle_type', onupdate='NO ACTION', ondelete='NO ACTION'),
-        nullable=False
     )
 
     destiny_id = Column(
         Integer,
         ForeignKey('public.destiny_intern.id_destiny', onupdate='NO ACTION', ondelete='NO ACTION'),
-        nullable=False
     )
 
     driver = Column(Text)

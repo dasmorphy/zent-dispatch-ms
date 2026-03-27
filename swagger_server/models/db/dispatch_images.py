@@ -3,6 +3,7 @@ from sqlalchemy import (
     Column,
     DateTime,
     Integer,
+    Numeric,
     String,
     Text,
     Time,
@@ -11,34 +12,35 @@ from sqlalchemy import (
 )
 
 
-class ProductsSku(Base):
-    __tablename__ = 'products_sku'
+class DispatchImages(Base):
+    __tablename__ = 'dispatch_products'
     __table_args__ = {'schema': 'public'}
 
-    id_product_sku = Column(
+    id_product = Column(
         Integer,
         primary_key=True,
         autoincrement=True
     )
 
-    product_id = Column(
-        Integer,
-        ForeignKey('public.dispatch_products.id_product', onupdate='NO ACTION', ondelete='NO ACTION'),
-        nullable=False
-    )
+    name = Column(Text)
+    price = Column(Numeric)
+    stock = Column(Integer)
+    presentation_type = Column(Text)
 
-    sku_id = Column(
-        Integer,
-        ForeignKey('public.dispatch_skus.id_sku', onupdate='NO ACTION', ondelete='NO ACTION'),
-        nullable=False
-    )
-
-    quantity = Column(Integer)
-
+    
     created_at = Column(
         DateTime,
         server_default=func.now()
     )
+
+    updated_at = Column(
+        DateTime,
+        server_default=func.now(),
+        onupdate=func.now()
+    )
+
+    created_by = Column(Text)
+    updated_by = Column(Text)
 
 
     def to_dict(self):

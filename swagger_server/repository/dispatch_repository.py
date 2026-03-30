@@ -1,8 +1,9 @@
 from loguru import logger
-from sqlalchemy import select
+from sqlalchemy import and_, func, select
 
 from swagger_server.exception.custom_error_exception import CustomAPIException
 from swagger_server.models.db import Base
+from swagger_server.models.db.destiny_intern import DestinyIntern
 from swagger_server.models.db.dispatch import Dispatch
 from swagger_server.models.db.dispatch_images import DispatchImages
 from swagger_server.models.db.dispatch_products import DispatchProducts
@@ -78,7 +79,7 @@ class DispatchRepository:
             if isinstance(exception, CustomAPIException):
                 raise exception
             
-            raise CustomAPIException("Error al buscar en la base de datos", 500)
+            raise CustomAPIException("Error al guardar el despacho en la base de datos", 500)
         
 
     def saveSku(self, session, data: RequestDispatchDispatchData, internal, external) -> DispatchSkus:
@@ -100,7 +101,7 @@ class DispatchRepository:
             if isinstance(exception, CustomAPIException):
                 raise exception
             
-            raise CustomAPIException("Error al buscar en la base de datos", 500)
+            raise CustomAPIException("Error al guardar el sku en la base de datos", 500)
         
 
     def saveProductSku(self, session, sku_id: int, data, internal, external):
@@ -119,7 +120,7 @@ class DispatchRepository:
             if isinstance(exception, CustomAPIException):
                 raise exception
             
-            raise CustomAPIException("Error al buscar en la base de datos", 500)
+            raise CustomAPIException("Error al guardar el producto sku en la base de datos", 500)
 
 
     def saveImages(self, session, data, internal, external):
@@ -184,6 +185,83 @@ class DispatchRepository:
                     for c in result.scalars().all()
                 ]
                 return vehicle_types
+            except Exception as exception:
+                logger.error('Error: {}', str(exception), internal=internal, external=external)
+                if isinstance(exception, CustomAPIException):
+                    raise exception
+                
+                raise CustomAPIException("Error al obtener en la base de datos", 500)
+            
+    def get_all_dispatch(self, filtersBase, internal, external):
+        with self.db.session_factory() as session:
+            try:
+
+                products_sku_subq = (
+                    select(
+                        ProductsSku.sku_id,
+                        func.json_agg(
+                            func.json_build_object(
+                                "id_product", ProductsSku.product_id,
+                                "name", DispatchProducts.name
+                            )
+                        ).label("products_sku")
+                    )
+                    .join(
+                        DispatchProducts,
+                        DispatchProducts.id_product == ProductsSku.product_id
+                    )
+                    .group_by(ProductsSku.sku_id)
+                    .subquery()
+                )
+
+                stmt = (
+                    select(
+                        Dispatch,
+                        DispatchSkus,
+                        DispatchStatus,
+                        DestinyIntern.name.label("name_destiny"),
+                        VehicleType.name.label("name_vehicle_type"),
+                        func.coalesce(products_sku_subq.c.products_sku, '[]').label("products_sku")
+                    )
+                    .join(
+                        DispatchSkus,
+                        DispatchSkus.id_sku == Dispatch.sku_id
+                    )
+                    .join(
+                        DestinyIntern,
+                        DestinyIntern.id_destiny == Dispatch.destiny_id
+                    )
+                    .join(
+                        DispatchStatus,
+                        DispatchStatus.id_status == Dispatch.status_id
+                    )
+                    .join(
+                        VehicleType,
+                        VehicleType.id_vehicle_type == Dispatch.vehicle_type_id
+                    )
+                    .outerjoin(
+                        products_sku_subq,
+                        products_sku_subq.c.sku_id == DispatchSkus.id_sku
+                    )
+                )
+
+                filters = []
+
+                if filtersBase.get("user"):
+                    filters.append(Dispatch.created_by == filtersBase.get("user"))
+
+                if filtersBase.get("start_date"):
+                    filters.append(Dispatch.created_at >= filtersBase.get("start_date"))
+
+                if filtersBase.get("end_date"):
+                    filters.append(Dispatch.created_at <= filtersBase.get("end_date"))
+
+                if filters:
+                    stmt = stmt.where(and_(*filters))
+
+                result = session.execute(stmt).all()
+                return result
+
             except Exception as exception:
                 logger.error('Error: {}', str(exception), internal=internal, external=external)
                 if isinstance(exception, CustomAPIException):

@@ -27,3 +27,35 @@ class DispatchUseCase:
 
     def get_vehicle_types(self, internal, external):
         return self.dispatch_repository.get_vehicle_types(internal, external)
+    
+    def get_all_dispatch(self, headers, params, internal, external):
+        filters = {
+            "user": headers.get("user"),
+            "start_date": params.get("start_date"),
+            "end_date": params.get("end_date"),
+        }
+
+        rows = self.dispatch_repository.get_all_dispatch(filters, internal, external)
+
+        return [
+            {
+                "id_dispatch": dispatch.id_dispatch,
+                "driver": dispatch.driver,
+                "truck_license": dispatch.truck_license,
+                "weight": dispatch.weight,
+                "observations": dispatch.observations,
+                "created_at": dispatch.created_at,
+                "updated_at": dispatch.updated_at,
+                "created_by": dispatch.created_by,
+                "updated_by": dispatch.updated_by,
+                "type_sku": dispatch_sku.type_sku,
+                "code_sku": dispatch_sku.code_sku,
+                "products_sku": products_sku,
+                "name_vehicle_type": name_vehicle_type,
+                "name_destiny": name_destiny,
+                "sku_id": dispatch.sku_id,
+                "status": dispatch_status.name,
+            }
+            for dispatch, dispatch_sku, dispatch_status, name_destiny, name_vehicle_type, products_sku in rows
+        ]
+    

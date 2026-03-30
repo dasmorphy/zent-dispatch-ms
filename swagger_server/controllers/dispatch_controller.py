@@ -1,10 +1,10 @@
 import json
 from timeit import default_timer
 from flask import request
-from venv import logger
 
 import connexion
 from flask.views import MethodView
+from loguru import logger
 
 from swagger_server.exception.custom_error_exception import CustomAPIException
 from swagger_server.models.request_dispatch import RequestDispatch  # noqa: E501
@@ -99,3 +99,83 @@ class DispatchView(MethodView):
         :rtype: GenericResponse
         """
         return 'do some magic!'
+    
+    def get_dispatch_products(self):  # noqa: E501
+        """Obtiene todos los productos de despacho
+
+        Devuelve todos los productos de despacho de la base # noqa: E501
+
+        :param external_transaction_id: 
+        :type external_transaction_id: str
+        :param channel: 
+        :type channel: str
+
+        :rtype: GenericResponse
+        """
+        internal_process = (None, None)
+        function_name = "get_all_unities"
+        response = {}
+        status_code = 500
+        try:
+            if connexion.request.headers:
+                start_time = default_timer()
+                internal_transaction_id = str(generate_internal_transaction_id())
+                external_transaction_id = request.headers.get('externalTransactionId')
+                internal_process = (internal_transaction_id, external_transaction_id)
+                response["internal_transaction_id"] = internal_transaction_id
+                response["external_transaction_id"] = external_transaction_id
+                message = f"start request: {function_name}, channel: {request.headers.get('channel')}"
+                logger.info(message, internal=internal_transaction_id, external=external_transaction_id)
+                results = self.dispatch_use_case.get_all_dispatch_products(internal_transaction_id, external_transaction_id)
+                response["error_code"] = 0
+                response["message"] = "Productos de despacho obtenidos correctamente"
+                response["data"] = results
+                end_time = default_timer()
+                logger.info(f"Fin de la transacción, procesada en : {end_time - start_time} milisegundos",
+                            internal=internal_transaction_id, external=external_transaction_id)
+                status_code = 200
+        except Exception as ex:
+            response, status_code = CustomAPIException.check_exception(ex, function_name, internal_process)
+            
+        return response, status_code
+    
+
+    def get_vehicle_types(self):  # noqa: E501
+        """Obtiene todos los tipos de vehículo
+
+        Devuelve todos los tipos de vehículo de la base # noqa: E501
+
+        :param external_transaction_id: 
+        :type external_transaction_id: str
+        :param channel: 
+        :type channel: str
+
+        :rtype: GenericResponse
+        """
+        internal_process = (None, None)
+        function_name = "get_vehicle_types"
+        response = {}
+        status_code = 500
+        try:
+            if connexion.request.headers:
+                start_time = default_timer()
+                internal_transaction_id = str(generate_internal_transaction_id())
+                external_transaction_id = request.headers.get('externalTransactionId')
+                internal_process = (internal_transaction_id, external_transaction_id)
+                response["internal_transaction_id"] = internal_transaction_id
+                response["external_transaction_id"] = external_transaction_id
+                message = f"start request: {function_name}, channel: {request.headers.get('channel')}"
+                logger.info(message, internal=internal_transaction_id, external=external_transaction_id)
+                results = self.dispatch_use_case.get_vehicle_types(internal_transaction_id, external_transaction_id)
+                response["error_code"] = 0
+                response["message"] = "Tipos de vehículo obtenidos correctamente"
+                response["data"] = results
+                end_time = default_timer()
+                logger.info(f"Fin de la transacción, procesada en : {end_time - start_time} milisegundos",
+                            internal=internal_transaction_id, external=external_transaction_id)
+                status_code = 200
+        except Exception as ex:
+            response, status_code = CustomAPIException.check_exception(ex, function_name, internal_process)
+            
+        return response, status_code
+    

@@ -14,25 +14,25 @@ class RequestDispatchDispatchDataProductsSku(Model):
 
     Do not edit the class manually.
     """
-    def __init__(self, id_product: int=None, quantiy: float=None):  # noqa: E501
+    def __init__(self, id_product: int=None, quantity: int=None):  # noqa: E501
         """RequestDispatchDispatchDataProductsSku - a model defined in Swagger
 
         :param id_product: The id_product of this RequestDispatchDispatchDataProductsSku.  # noqa: E501
         :type id_product: int
-        :param quantiy: The quantiy of this RequestDispatchDispatchDataProductsSku.  # noqa: E501
-        :type quantiy: float
+        :param quantity: The quantity of this RequestDispatchDispatchDataProductsSku.  # noqa: E501
+        :type quantity: int
         """
         self.swagger_types = {
             'id_product': int,
-            'quantiy': float
+            'quantity': int
         }
 
         self.attribute_map = {
             'id_product': 'id_product',
-            'quantiy': 'quantiy'
+            'quantity': 'quantity'
         }
         self._id_product = id_product
-        self._quantiy = quantiy
+        self._quantity = quantity
 
     @classmethod
     def from_dict(cls, dikt) -> 'RequestDispatchDispatchDataProductsSku':
@@ -67,22 +67,22 @@ class RequestDispatchDispatchDataProductsSku(Model):
         self._id_product = id_product
 
     @property
-    def quantiy(self) -> float:
-        """Gets the quantiy of this RequestDispatchDispatchDataProductsSku.
+    def quantity(self) -> int:
+        """Gets the quantity of this RequestDispatchDispatchDataProductsSku.
 
 
-        :return: The quantiy of this RequestDispatchDispatchDataProductsSku.
-        :rtype: float
+        :return: The quantity of this RequestDispatchDispatchDataProductsSku.
+        :rtype: int
         """
-        return self._quantiy
+        return self._quantity
 
-    @quantiy.setter
-    def quantiy(self, quantiy: float):
-        """Sets the quantiy of this RequestDispatchDispatchDataProductsSku.
+    @quantity.setter
+    def quantity(self, quantity: int):
+        """Sets the quantity of this RequestDispatchDispatchDataProductsSku.
 
 
-        :param quantiy: The quantiy of this RequestDispatchDispatchDataProductsSku.
-        :type quantiy: float
+        :param quantity: The quantity of this RequestDispatchDispatchDataProductsSku.
+        :type quantity: int
         """
 
-        self._quantiy = quantiy
+        self._quantity = quantity

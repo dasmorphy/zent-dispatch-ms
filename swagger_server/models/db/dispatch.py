@@ -4,12 +4,19 @@ from sqlalchemy import (
     DateTime,
     Integer,
     String,
+    Table,
     Text,
     Time,
     ForeignKey,
     func
 )
 
+destiny_intern = Table(
+    "destiny_intern",
+    Base.metadata,
+    Column("id_destiny", Integer, primary_key=True),
+    schema="public"
+)
 
 class Dispatch(Base):
     __tablename__ = 'dispatch'

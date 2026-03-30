@@ -15,7 +15,7 @@ class RequestDispatchDispatchData(Model):
 
     Do not edit the class manually.
     """
-    def __init__(self, weight: float=None, vehicle_type: int=None, sku_type: str=None, presentation_type: str=None, destiny: int=None, status_id: int=None, truck_license: str=None, user: str=None, driver: str=None, images: List[str]=None, products_sku: List[RequestDispatchDispatchDataProductsSku]=None, observations: str=None):  # noqa: E501
+    def __init__(self, weight: float=None, vehicle_type: int=None, sku_type: str=None, destiny: int=None, status_id: int=None, truck_license: str=None, user: str=None, driver: str=None, images: List[str]=None, products_sku: List[RequestDispatchDispatchDataProductsSku]=None, observations: str=None):  # noqa: E501
         """RequestDispatchDispatchData - a model defined in Swagger
 
         :param weight: The weight of this RequestDispatchDispatchData.  # noqa: E501
@@ -24,8 +24,6 @@ class RequestDispatchDispatchData(Model):
         :type vehicle_type: int
         :param sku_type: The sku_type of this RequestDispatchDispatchData.  # noqa: E501
         :type sku_type: str
-        :param presentation_type: The presentation_type of this RequestDispatchDispatchData.  # noqa: E501
-        :type presentation_type: str
         :param destiny: The destiny of this RequestDispatchDispatchData.  # noqa: E501
         :type destiny: int
         :param status_id: The status_id of this RequestDispatchDispatchData.  # noqa: E501
@@ -47,7 +45,6 @@ class RequestDispatchDispatchData(Model):
             'weight': float,
             'vehicle_type': int,
             'sku_type': str,
-            'presentation_type': str,
             'destiny': int,
             'status_id': int,
             'truck_license': str,
@@ -62,7 +59,6 @@ class RequestDispatchDispatchData(Model):
             'weight': 'weight',
             'vehicle_type': 'vehicle_type',
             'sku_type': 'sku_type',
-            'presentation_type': 'presentation_type',
             'destiny': 'destiny',
             'status_id': 'status_id',
             'truck_license': 'truck_license',
@@ -75,7 +71,6 @@ class RequestDispatchDispatchData(Model):
         self._weight = weight
         self._vehicle_type = vehicle_type
         self._sku_type = sku_type
-        self._presentation_type = presentation_type
         self._destiny = destiny
         self._status_id = status_id
         self._truck_license = truck_license
@@ -158,27 +153,6 @@ class RequestDispatchDispatchData(Model):
         """
 
         self._sku_type = sku_type
-
-    @property
-    def presentation_type(self) -> str:
-        """Gets the presentation_type of this RequestDispatchDispatchData.
-
-
-        :return: The presentation_type of this RequestDispatchDispatchData.
-        :rtype: str
-        """
-        return self._presentation_type
-
-    @presentation_type.setter
-    def presentation_type(self, presentation_type: str):
-        """Sets the presentation_type of this RequestDispatchDispatchData.
-
-
-        :param presentation_type: The presentation_type of this RequestDispatchDispatchData.
-        :type presentation_type: str
-        """
-
-        self._presentation_type = presentation_type
 
     @property
     def destiny(self) -> int:

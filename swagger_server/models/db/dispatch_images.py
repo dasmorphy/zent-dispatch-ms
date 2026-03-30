@@ -13,7 +13,7 @@ from sqlalchemy import (
 
 
 class DispatchImages(Base):
-    __tablename__ = 'dispatch_products'
+    __tablename__ = 'dispatch_images'
     __table_args__ = {'schema': 'public'}
 
     id_product = Column(

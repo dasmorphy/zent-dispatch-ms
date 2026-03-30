@@ -62,6 +62,118 @@ paths:
               schema:
                 $ref: "#/components/schemas/ResponseError"
       x-openapi-router-controller: swagger_server.controllers.dispatch_controller.DispatchView
+  /dispatch-products-sku:
+    get:
+      tags:
+      - Catalogs
+      summary: Obtiene todos los productos de despacho
+      description: Devuelve todos los productos de despacho de la base
+      operationId: get_dispatch_products
+      parameters:
+      - name: externalTransactionId
+        in: header
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          example: fcea920f7412b5da7be0cf42b8c93759
+      - name: channel
+        in: header
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          example: ZENTINEL
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResponseError"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResponseError"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResponseError"
+        "503":
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResponseError"
+      x-openapi-router-controller: swagger_server.controllers.dispatch_controller.DispatchView
+  /vehicle-types:
+    get:
+      tags:
+      - Catalogs
+      summary: Obtiene todos los tipos de vehículo
+      description: Devuelve todos los tipos de vehículo de la base
+      operationId: get_vehicle_types
+      parameters:
+      - name: externalTransactionId
+        in: header
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          example: fcea920f7412b5da7be0cf42b8c93759
+      - name: channel
+        in: header
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          example: ZENTINEL
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResponseError"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResponseError"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResponseError"
+        "503":
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResponseError"
+      x-openapi-router-controller: swagger_server.controllers.dispatch_controller.DispatchView
   /dispatch:
     put:
       tags:
@@ -210,7 +322,7 @@ components:
         id_product:
           type: integer
           example: 1
-        quantiy:
+        quantity:
           type: number
           example: 10
     RequestDispatch_dispatch_data:
@@ -226,9 +338,6 @@ components:
         sku_type:
           type: string
           example: Multiple
-        presentation_type:
-          type: string
-          example: Tulas
         destiny:
           type: integer
           example: 1

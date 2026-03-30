@@ -202,7 +202,8 @@ class DispatchRepository:
                         func.json_agg(
                             func.json_build_object(
                                 "id_product", ProductsSku.product_id,
-                                "name", DispatchProducts.name
+                                "name", DispatchProducts.name,
+                                "quantity", ProductsSku.quantity
                             )
                         ).label("products_sku")
                     )

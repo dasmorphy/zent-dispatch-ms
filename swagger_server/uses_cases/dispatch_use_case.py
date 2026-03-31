@@ -22,6 +22,10 @@ class DispatchUseCase:
         internal, external = internal_process
         self.dispatch_repository.post_dispatch(body.dispatch_data, images, internal, external)
 
+    def update_dispatch(self, body: RequestDispatch, internal_process: tuple) -> None:
+        internal, external = internal_process
+        self.dispatch_repository.update_dispatch(body.dispatch_data, internal, external)
+
     def get_all_dispatch_products(self, internal, external):
         return self.dispatch_repository.get_all_dispatch_products(internal, external)
 

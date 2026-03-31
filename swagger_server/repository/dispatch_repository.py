@@ -56,6 +56,40 @@ class DispatchRepository:
                 session.close()
 
 
+    def update_dispatch(self, data: RequestDispatchDispatchData, internal, external):
+        saved_files = []
+
+        with self.db.session_factory() as session:
+            try:
+                
+                sku_saved = self.saveSku(session, data, internal, external)
+                products = data.products_sku
+                self.saveDispatch(session, data, sku_saved.id_sku, internal, external)
+
+                for product in products:
+                    self.saveProductSku(
+                        session,
+                        sku_saved.id_sku,
+                        product,
+                        internal,
+                        external
+                    )
+
+                # self.saveImages(session, images, internal, external)
+                session.commit()
+
+            except Exception as exception:
+                session.rollback()
+                logger.error('Error: {}', str(exception), internal=internal, external=external)
+                if isinstance(exception, CustomAPIException):
+                    raise exception
+                
+                raise CustomAPIException("Error al insertar en la base de datos", 500)
+
+            finally:
+                session.close()
+
+
     def saveDispatch(self, session, data: RequestDispatchDispatchData, sku_id: int, internal, external):
         try:
             

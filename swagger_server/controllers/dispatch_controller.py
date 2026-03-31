@@ -72,7 +72,7 @@ class DispatchView(MethodView):
         return response, status_code
 
 
-    def update_dispatch(body=None):  # noqa: E501
+    def update_dispatch(self):  # noqa: E501
         """Actualiza el despacho en la base de datos.
 
         Actualiza de despacho # noqa: E501
@@ -82,9 +82,32 @@ class DispatchView(MethodView):
 
         :rtype: GenericResponse
         """
-        if connexion.request.is_json:
-            body = RequestDispatch.from_dict(connexion.request.get_json())  # noqa: E501
-        return 'do some magic!'
+        internal_process = (None, None)
+        function_name = "update_dispatch"
+        response = {}
+        status_code = 500
+        try:
+            if connexion.request.is_json:
+                start_time = default_timer()
+                internal_transaction_id = str(generate_internal_transaction_id())
+                body = RequestDispatch.from_dict(connexion.request.get_json())  # noqa: E501
+                external_transaction_id = body.external_transaction_id
+                internal_process = (internal_transaction_id, external_transaction_id)
+                response["internal_transaction_id"] = internal_transaction_id
+                response["external_transaction_id"] = external_transaction_id
+                message = f"start request: {function_name}, channel: {body.channel}"
+                logger.info(message, internal=internal_transaction_id, external=external_transaction_id)
+                self.dispatch_use_case.update_dispatch(body, internal_process)
+                response["error_code"] = 0
+                response["message"] = "Despacho actualizado correctamente"
+                end_time = default_timer()
+                logger.info(f"Fin de la transacción, procesada en : {end_time - start_time} milisegundos",
+                            internal=internal_transaction_id, external=body.external_transaction_id)
+                status_code = 200
+        except Exception as ex:
+            response, status_code = CustomAPIException.check_exception(ex, function_name, internal_process)
+            
+        return response, status_code
     
     def get_status_dispatch(body=None):  # noqa: E501
         """Obtiene todos los estados de despacho

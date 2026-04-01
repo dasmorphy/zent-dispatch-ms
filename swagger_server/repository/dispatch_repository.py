@@ -56,26 +56,33 @@ class DispatchRepository:
                 session.close()
 
 
-    def update_dispatch(self, data: RequestDispatchDispatchData, internal, external):
-        saved_files = []
-
+    def update_dispatch(self, data: RequestDispatchDispatchData, id_disp: int, internal, external):
         with self.db.session_factory() as session:
             try:
                 
-                sku_saved = self.saveSku(session, data, internal, external)
-                products = data.products_sku
-                self.saveDispatch(session, data, sku_saved.id_sku, internal, external)
+                dispatch_exist = session.get(Dispatch, id_disp)
 
-                for product in products:
-                    self.saveProductSku(
-                        session,
-                        sku_saved.id_sku,
-                        product,
-                        internal,
-                        external
-                    )
+                if not dispatch_exist:
+                    raise CustomAPIException("Despacho no encontrado", 404)
+                
+                update_fields = {
+                    "vehicle_type_id": data.vehicle_type,
+                    "destiny_id": data.destiny,
+                    "driver": data.driver,
+                    "observations": data.observations,
+                    "weight": data.weight,
+                    "truck_license": data.truck_license,
+                    "status_id": data.status_id,
+                }
 
-                # self.saveImages(session, images, internal, external)
+                for field, value in update_fields.items():
+                    if value is not None:
+                        setattr(dispatch_exist, field, value)
+
+                dispatch_exist.updated_by = data.user
+                dispatch_exist.updated_at = func.now()
+                
+                session.add(dispatch_exist)
                 session.commit()
 
             except Exception as exception:
@@ -219,6 +226,28 @@ class DispatchRepository:
                     for c in result.scalars().all()
                 ]
                 return vehicle_types
+            except Exception as exception:
+                logger.error('Error: {}', str(exception), internal=internal, external=external)
+                if isinstance(exception, CustomAPIException):
+                    raise exception
+                
+                raise CustomAPIException("Error al obtener en la base de datos", 500)
+            
+    def get_status_dispatch(self, internal, external):
+        with self.db.session_factory() as session:
+            try:
+                result = session.execute(
+                    select(DispatchStatus)
+                )
+                status = [
+                    {
+                        "id_status": c.id_status,
+                        "name": c.name,
+                        "created_at": c.created_at
+                    }
+                    for c in result.scalars().all()
+                ]
+                return status
             except Exception as exception:
                 logger.error('Error: {}', str(exception), internal=internal, external=external)
                 if isinstance(exception, CustomAPIException):

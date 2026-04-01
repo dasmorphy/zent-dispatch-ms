@@ -35,7 +35,6 @@ def custom_error_handler(error):
     error_response = ResponseError(
         error_code=-1,
         message=message,
-        data=None,
         external_transaction_id=external_transaction_id,
         internal_transaction_id=None
     )

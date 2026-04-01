@@ -246,12 +246,12 @@ paths:
               schema:
                 $ref: "#/components/schemas/ResponseError"
       x-openapi-router-controller: swagger_server.controllers.dispatch_controller.DispatchView
-    put:
+    post:
       tags:
       - Dispatch
-      summary: Actualiza el despacho en la base de datos.
-      description: Actualiza de despacho
-      operationId: update_dispatch
+      summary: Guarda el despacho en la base de datos.
+      description: Guardado de despacho
+      operationId: post_dispatch
       requestBody:
         content:
           application/json:
@@ -289,12 +289,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/ResponseError"
       x-openapi-router-controller: swagger_server.controllers.dispatch_controller.DispatchView
-    post:
+  /dispatch/{dispatch_id}:
+    patch:
       tags:
       - Dispatch
-      summary: Guarda el despacho en la base de datos.
-      description: Guardado de despacho
-      operationId: post_dispatch
+      summary: Actualiza el despacho en la base de datos.
+      description: Actualiza de despacho
+      operationId: update_dispatch
+      parameters:
+      - name: dispatch_id
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+          example: 1
       requestBody:
         content:
           application/json:
@@ -403,13 +413,17 @@ components:
           type: number
           format: double
           example: 2000000.75
+          nullable: true
         vehicle_type:
+          nullable: true
           type: integer
           example: 1
         sku_type:
+          nullable: true
           type: string
           example: Multiple
         destiny:
+          nullable: true
           type: integer
           example: 1
         status_id:
@@ -417,15 +431,19 @@ components:
           nullable: true
           example: 1
         truck_license:
+          nullable: true
           type: string
           example: GME-511
         user:
+          nullable: true
           type: string
           example: dmales
         driver:
+          nullable: true
           type: string
           example: Daniel
         images:
+          nullable: true
           maxItems: 10
           type: array
           items:
@@ -433,6 +451,7 @@ components:
             format: binary
         products_sku:
           type: array
+          nullable: true
           items:
             $ref: "#/components/schemas/RequestDispatch_dispatch_data_products_sku"
         observations:

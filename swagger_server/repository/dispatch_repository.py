@@ -1,5 +1,5 @@
 from loguru import logger
-from sqlalchemy import and_, func, select
+from sqlalchemy import and_, exists, func, select
 
 from swagger_server.exception.custom_error_exception import CustomAPIException
 from swagger_server.models.db import Base
@@ -7,11 +7,15 @@ from swagger_server.models.db.destiny_intern import DestinyIntern
 from swagger_server.models.db.dispatch import Dispatch
 from swagger_server.models.db.dispatch_images import DispatchImages
 from swagger_server.models.db.dispatch_products import DispatchProducts
+from swagger_server.models.db.dispatch_reception import DispatchReception
+from swagger_server.models.db.dispatch_reception_detail import DispatchReceptionDetail
 from swagger_server.models.db.dispatch_skus import DispatchSkus
 from swagger_server.models.db.products_sku import ProductsSku
 from swagger_server.models.db.vehicle_type import VehicleType
 from swagger_server.models.db.dispatch_status import DispatchStatus
+from swagger_server.models.reception_data import Receptiondata
 from swagger_server.models.request_dispatch_dispatch_data import RequestDispatchDispatchData
+from swagger_server.models.request_reception import RequestReception
 from swagger_server.resources.databases.postgresql import PostgreSQLClient
 
 
@@ -99,6 +103,28 @@ class DispatchRepository:
 
     def saveDispatch(self, session, data: RequestDispatchDispatchData, sku_id: int, internal, external):
         try:
+
+            vehicle_exists = session.execute(
+                select(
+                    exists().where(
+                        VehicleType.id_vehicle_type == data.vehicle_type
+                    )
+                )
+            ).scalar()
+
+            if not vehicle_exists:
+                raise CustomAPIException("El tipo de vehículo no existe", 404)
+            
+            destiny_exists = session.execute(
+                select(
+                    exists().where(
+                        DestinyIntern.id_destiny == data.destiny
+                    )
+                )
+            ).scalar()
+
+            if not destiny_exists:
+                raise CustomAPIException("El destino no existe", 404)
             
             dispatch = Dispatch(
                 vehicle_type_id=data.vehicle_type,
@@ -147,6 +173,16 @@ class DispatchRepository:
 
     def saveProductSku(self, session, sku_id: int, data, internal, external):
         try:
+            product_exists = session.execute(
+                select(
+                    exists().where(
+                        DispatchProducts.id_product == data.id_product
+                    )
+                )
+            ).scalar()
+
+            if not product_exists:
+                raise CustomAPIException("El producto no existe", 404)
             
             product_sku = ProductsSku(
                 product_id=data.id_product,
@@ -332,3 +368,64 @@ class DispatchRepository:
                     raise exception
                 
                 raise CustomAPIException("Error al obtener en la base de datos", 500)
+            
+    def post_reception(self, body: Receptiondata, internal, external) -> None:
+        with self.db.session_factory() as session:
+            try:
+                dispatch_exists = session.execute(
+                    select(
+                        exists().where(
+                            Dispatch.id_dispatch == body.dispatch_id
+                        )
+                    )
+                ).scalar()
+
+                if not dispatch_exists:
+                    raise CustomAPIException("Despacho no encontrado", 404)
+                
+                reception_data = DispatchReception(
+                    dispatch_id=body.dispatch_id,
+                    is_correct=body.is_correct,
+                    observations=body.observations,
+                    created_by=body.user
+                )
+
+                session.add(reception_data)
+
+                if (body.is_correct and body.reception_details):
+                    for detail in body.reception_details:
+                        product_exists = session.execute(
+                            select(
+                                exists().where(
+                                    DispatchProducts.id_product == detail.product_id
+                                )
+                            )
+                        ).scalar()
+
+                        if not product_exists:
+                            raise CustomAPIException("Un producto no existe", 404)
+                        
+                        reception_detail = DispatchReceptionDetail(
+                            reception_id=reception_data.id_reception,
+                            expected_quantity=detail.expected_quantity,
+                            received_quantity=detail.received_quantity,
+                            product_id=detail.product_id,
+                            observations=detail.observations
+                        )
+                        session.add(reception_detail)
+
+                elif body.is_correct and (body.reception_details is None or len(body.reception_details) == 0):
+                    raise CustomAPIException("El detalle de recepción no puede ser vacío", 400)
+
+
+                session.flush()
+                session.commit()
+            
+            except Exception as exception:
+                session.rollback()
+                logger.error('Error: {}', str(exception), internal=internal, external=external)
+                if isinstance(exception, CustomAPIException):
+                    raise exception
+                
+                raise CustomAPIException("Error al obtener en la base de datos", 500)
+

@@ -8,6 +8,7 @@ from loguru import logger
 
 from swagger_server.exception.custom_error_exception import CustomAPIException
 from swagger_server.models.request_dispatch import RequestDispatch  # noqa: E501
+from swagger_server.models.request_reception import RequestReception
 from swagger_server.repository.dispatch_repository import DispatchRepository
 from swagger_server.uses_cases.dispatch_use_case import DispatchUseCase
 from swagger_server.utils.transactions.transaction import generate_internal_transaction_id
@@ -261,6 +262,34 @@ class DispatchView(MethodView):
                 end_time = default_timer()
                 logger.info(f"Fin de la transacción, procesada en : {end_time - start_time} milisegundos",
                             internal=internal_transaction_id, external=external_transaction_id)
+                status_code = 200
+        except Exception as ex:
+            response, status_code = CustomAPIException.check_exception(ex, function_name, internal_process)
+            
+        return response, status_code
+    
+    def post_reception(self):  # noqa: E501
+        internal_process = (None, None)
+        function_name = "post_reception"
+        response = {}
+        status_code = 500
+        try:
+            if connexion.request.is_json:
+                start_time = default_timer()
+                internal_transaction_id = str(generate_internal_transaction_id())
+                body = RequestReception.from_dict(connexion.request.get_json())  # noqa: E501
+                external_transaction_id = body.external_transaction_id
+                internal_process = (internal_transaction_id, external_transaction_id)
+                response["internal_transaction_id"] = internal_transaction_id
+                response["external_transaction_id"] = external_transaction_id
+                message = f"start request: {function_name}, channel: {body.channel}"
+                logger.info(message, internal=internal_transaction_id, external=external_transaction_id)
+                self.dispatch_use_case.post_reception(body, internal_process)
+                response["error_code"] = 0
+                response["message"] = "Recepción creada correctamente"
+                end_time = default_timer()
+                logger.info(f"Fin de la transacción, procesada en : {end_time - start_time} milisegundos",
+                            internal=internal_transaction_id, external=body.external_transaction_id)
                 status_code = 200
         except Exception as ex:
             response, status_code = CustomAPIException.check_exception(ex, function_name, internal_process)

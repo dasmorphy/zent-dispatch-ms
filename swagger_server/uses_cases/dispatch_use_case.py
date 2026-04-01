@@ -5,6 +5,7 @@
 from swagger_server.exception.custom_error_exception import CustomAPIException
 from swagger_server.models.db.dispatch import Dispatch
 from swagger_server.models.request_dispatch import RequestDispatch
+from swagger_server.models.request_reception import RequestReception
 from swagger_server.repository.dispatch_repository import DispatchRepository
 
 
@@ -66,3 +67,6 @@ class DispatchUseCase:
             for dispatch, dispatch_sku, dispatch_status, name_destiny, name_vehicle_type, products_sku in rows
         ]
     
+    def post_reception(self, body: RequestReception, internal_process: tuple) -> None:        
+        internal, external = internal_process
+        self.dispatch_repository.post_reception(body.reception_data, internal, external)

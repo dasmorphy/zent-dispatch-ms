@@ -174,6 +174,50 @@ paths:
               schema:
                 $ref: "#/components/schemas/ResponseError"
       x-openapi-router-controller: swagger_server.controllers.dispatch_controller.DispatchView
+  /reception:
+    post:
+      tags:
+      - Dispatch
+      summary: Guarda la recepcion del despacho en la base de datos.
+      description: Guardado de recepcion de despacho
+      operationId: post_reception
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RequestReception"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResponseError"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResponseError"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResponseError"
+        "503":
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResponseError"
+      x-openapi-router-controller: swagger_server.controllers.dispatch_controller.DispatchView
   /dispatch:
     get:
       tags:
@@ -454,6 +498,57 @@ components:
           nullable: true
           items:
             $ref: "#/components/schemas/RequestDispatch_dispatch_data_products_sku"
+        observations:
+          type: string
+          nullable: true
+          example: N/A
+    RequestReception:
+      properties:
+        reception_data:
+          $ref: "#/components/schemas/Receptiondata"
+        channel:
+          type: string
+          example: ZENTINEL
+        externalTransactionId:
+          type: string
+          example: fcea920f7412b5da7be0cf42b8c93759
+    Receptiondata:
+      type: object
+      properties:
+        dispatch_id:
+          type: integer
+          example: 1
+        is_correct:
+          type: boolean
+          example: true
+        reception_details:
+          type: array
+          nullable: true
+          items:
+            $ref: "#/components/schemas/ReceptionDetailData"
+        user:
+          type: string
+          example: dmales
+        observations:
+          type: string
+          nullable: true
+          example: N/A
+    ReceptionDetailData:
+      type: object
+      properties:
+        reception_id:
+          type: integer
+          nullable: true
+          example: 1
+        product_id:
+          type: integer
+          example: 1
+        expected_quantity:
+          type: integer
+          example: 1
+        received_quantity:
+          type: integer
+          example: 1
         observations:
           type: string
           nullable: true

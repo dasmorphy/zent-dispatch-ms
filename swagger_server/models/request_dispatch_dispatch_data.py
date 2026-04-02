@@ -15,7 +15,7 @@ class RequestDispatchDispatchData(Model):
 
     Do not edit the class manually.
     """
-    def __init__(self, weight: float=None, vehicle_type: int=None, sku_type: str=None, destiny: int=None, status_id: int=None, truck_license: str=None, user: str=None, driver: str=None, images: List[str]=None, products_sku: List[RequestDispatchDispatchDataProductsSku]=None, observations: str=None):  # noqa: E501
+    def __init__(self, weight: float=None, vehicle_type: int=None, sku_type: str=None, destiny: int=None, status_id: int=None, order_number: str=None, truck_license: str=None, user: str=None, driver: str=None, images: List[str]=None, products_sku: List[RequestDispatchDispatchDataProductsSku]=None, observations: str=None):  # noqa: E501
         """RequestDispatchDispatchData - a model defined in Swagger
 
         :param weight: The weight of this RequestDispatchDispatchData.  # noqa: E501
@@ -28,6 +28,8 @@ class RequestDispatchDispatchData(Model):
         :type destiny: int
         :param status_id: The status_id of this RequestDispatchDispatchData.  # noqa: E501
         :type status_id: int
+        :param order_number: The order_number of this RequestDispatchDispatchData.  # noqa: E501
+        :type order_number: str
         :param truck_license: The truck_license of this RequestDispatchDispatchData.  # noqa: E501
         :type truck_license: str
         :param user: The user of this RequestDispatchDispatchData.  # noqa: E501
@@ -47,6 +49,7 @@ class RequestDispatchDispatchData(Model):
             'sku_type': str,
             'destiny': int,
             'status_id': int,
+            'order_number': str,
             'truck_license': str,
             'user': str,
             'driver': str,
@@ -61,6 +64,7 @@ class RequestDispatchDispatchData(Model):
             'sku_type': 'sku_type',
             'destiny': 'destiny',
             'status_id': 'status_id',
+            'order_number': 'order_number',
             'truck_license': 'truck_license',
             'user': 'user',
             'driver': 'driver',
@@ -73,6 +77,7 @@ class RequestDispatchDispatchData(Model):
         self._sku_type = sku_type
         self._destiny = destiny
         self._status_id = status_id
+        self._order_number = order_number
         self._truck_license = truck_license
         self._user = user
         self._driver = driver
@@ -195,6 +200,27 @@ class RequestDispatchDispatchData(Model):
         """
 
         self._status_id = status_id
+
+    @property
+    def order_number(self) -> str:
+        """Gets the order_number of this RequestDispatchDispatchData.
+
+
+        :return: The order_number of this RequestDispatchDispatchData.
+        :rtype: str
+        """
+        return self._order_number
+
+    @order_number.setter
+    def order_number(self, order_number: str):
+        """Sets the order_number of this RequestDispatchDispatchData.
+
+
+        :param order_number: The order_number of this RequestDispatchDispatchData.
+        :type order_number: str
+        """
+
+        self._order_number = order_number
 
     @property
     def truck_license(self) -> str:

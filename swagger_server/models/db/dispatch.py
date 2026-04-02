@@ -42,6 +42,7 @@ class Dispatch(Base):
     )
 
     driver = Column(Text)
+    order_number = Column(Text)
     observations = Column(Text)
     truck_license = Column(Text)
     weight = Column(Integer)

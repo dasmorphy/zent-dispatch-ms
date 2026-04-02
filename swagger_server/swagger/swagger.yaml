@@ -474,6 +474,10 @@ components:
           type: integer
           nullable: true
           example: 1
+        order_number:
+          nullable: true
+          type: string
+          example: 123456
         truck_license:
           nullable: true
           type: string

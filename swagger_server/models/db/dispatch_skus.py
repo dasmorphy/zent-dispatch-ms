@@ -22,7 +22,6 @@ class DispatchSkus(Base):
     )
 
     type_sku = Column(Text)
-    code_sku = Column(Text)
     
     created_at = Column(
         DateTime,

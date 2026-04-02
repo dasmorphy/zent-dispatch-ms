@@ -57,7 +57,7 @@ class DispatchUseCase:
                 "created_by": dispatch.created_by,
                 "updated_by": dispatch.updated_by,
                 "type_sku": dispatch_sku.type_sku,
-                "code_sku": dispatch_sku.code_sku,
+                "order_number": dispatch.order_number,
                 "products_sku": products_sku,
                 "name_vehicle_type": name_vehicle_type,
                 "name_destiny": name_destiny,

@@ -127,6 +127,7 @@ class DispatchRepository:
                 raise CustomAPIException("El destino no existe", 404)
             
             dispatch = Dispatch(
+                order_number=data.order_number,
                 vehicle_type_id=data.vehicle_type,
                 destiny_id=data.destiny,
                 driver=data.driver,
@@ -155,7 +156,6 @@ class DispatchRepository:
                 created_by=data.user,
                 updated_by=data.user,
                 type_sku=data.sku_type,
-                code_sku='test'
             )
             
             session.add(dispatch_skus)
@@ -358,7 +358,9 @@ class DispatchRepository:
 
                 if filters:
                     stmt = stmt.where(and_(*filters))
-
+                
+                stmt = stmt.order_by(Dispatch.created_at.desc())
+                
                 result = session.execute(stmt).all()
                 return result
 

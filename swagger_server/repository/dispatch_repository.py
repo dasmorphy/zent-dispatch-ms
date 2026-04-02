@@ -360,7 +360,7 @@ class DispatchRepository:
                     stmt = stmt.where(and_(*filters))
                 
                 stmt = stmt.order_by(Dispatch.created_at.desc())
-                
+
                 result = session.execute(stmt).all()
                 return result
 
@@ -374,13 +374,7 @@ class DispatchRepository:
     def post_reception(self, body: Receptiondata, internal, external) -> None:
         with self.db.session_factory() as session:
             try:
-                dispatch_exists = session.execute(
-                    select(
-                        exists().where(
-                            Dispatch.id_dispatch == body.dispatch_id
-                        )
-                    )
-                ).scalar()
+                dispatch_exists = session.get(Dispatch, body.dispatch_id)
 
                 if not dispatch_exists:
                     raise CustomAPIException("Despacho no encontrado", 404)
@@ -393,6 +387,7 @@ class DispatchRepository:
                 )
 
                 session.add(reception_data)
+                session.flush()
 
                 if (body.is_correct and body.reception_details):
                     for detail in body.reception_details:
@@ -420,7 +415,20 @@ class DispatchRepository:
                     raise CustomAPIException("El detalle de recepción no puede ser vacío", 400)
 
 
-                session.flush()
+                dispatch_status = session.execute(
+                    select(DispatchStatus).where(
+                        DispatchStatus.name == "Ingresado en bodega"
+                    )
+                ).scalar_one_or_none()
+
+                if not dispatch_status:
+                    raise CustomAPIException("Estado de ingresado en bodega no existe", 500)
+
+                dispatch_exists.status_id = dispatch_status.id_status
+                dispatch_exists.updated_by = body.user
+                dispatch_exists.updated_at = func.now()
+
+                session.add(dispatch_exists)
                 session.commit()
             
             except Exception as exception:

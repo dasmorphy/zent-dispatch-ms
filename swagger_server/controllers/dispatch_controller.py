@@ -8,6 +8,7 @@ from loguru import logger
 
 from swagger_server.exception.custom_error_exception import CustomAPIException
 from swagger_server.models.request_dispatch import RequestDispatch  # noqa: E501
+from swagger_server.models.request_dispatch_dispatch_data import RequestDispatchDispatchData
 from swagger_server.models.request_reception import RequestReception
 from swagger_server.repository.dispatch_repository import DispatchRepository
 from swagger_server.uses_cases.dispatch_use_case import DispatchUseCase
@@ -35,38 +36,32 @@ class DispatchView(MethodView):
         response = {}
         status_code = 500
         try:
-            # if request.content_type.startswith("multipart/form-data"):
-            start_time = default_timer()
-            internal_transaction_id = str(generate_internal_transaction_id())
+            if request.content_type.startswith("multipart/form-data"):
+                start_time = default_timer()
+                internal_transaction_id = str(generate_internal_transaction_id())
 
-            # dispatch_file = request.files.get("dispatch_data")
-            # if not dispatch_file:
-            #     raise CustomAPIException("Campo dispatch_data no enviado", 400)
+                dispatch_file = request.files.get("dispatch_data")
+                if not dispatch_file:
+                    raise CustomAPIException("Campo dispatch_data no enviado", 400)
 
-            # dispatch_raw = dispatch_file.read().decode("utf-8")
-            # dispatch_dict = json.loads(dispatch_raw)
-            body = RequestDispatch.from_dict(connexion.request.get_json())  # noqa: E501
-
-            # external_transaction_id = dispatch_dict['external_transaction_id']
-            external_transaction_id = body.external_transaction_id
-            internal_process = (internal_transaction_id, external_transaction_id)
-            response["internal_transaction_id"] = internal_transaction_id
-            response["external_transaction_id"] = external_transaction_id
-            # message = f"start request: {function_name}, channel: {dispatch_dict['channel']}"
-            message = f"start request: {function_name}, channel: {body.channel}"
-            logger.info(message, internal=internal_transaction_id, external=external_transaction_id)
-            files = request.files.getlist("images")
-            # self.dispatch_use_case.post_dispatch(dispatch_dict, files, internal_process)
-            self.dispatch_use_case.post_dispatch(body, files, internal_process)
-            response["error_code"] = 0
-            response["message"] = "Despacho creado correctamente"
-            end_time = default_timer()
-            # logger.info(f"Fin de la transacción, procesada en : {end_time - start_time} milisegundos",
-            #             internal=internal_transaction_id, external=dispatch_dict['external_transaction_id'])
-            
-            logger.info(f"Fin de la transacción, procesada en : {end_time - start_time} milisegundos",
-                        internal=internal_transaction_id, external=body.external_transaction_id)
-            status_code = 200
+                dispatch_raw = dispatch_file.read().decode("utf-8")
+                dispatch_dict = json.loads(dispatch_raw)
+                dispatch_data = RequestDispatchDispatchData.from_json(dispatch_dict)
+                
+                external_transaction_id = dispatch_dict['external_transaction_id']
+                internal_process = (internal_transaction_id, external_transaction_id)
+                response["internal_transaction_id"] = internal_transaction_id
+                response["external_transaction_id"] = external_transaction_id
+                message = f"start request: {function_name}, channel: {dispatch_dict['channel']}"
+                logger.info(message, internal=internal_transaction_id, external=external_transaction_id)
+                files = request.files.getlist("images")
+                self.dispatch_use_case.post_dispatch(dispatch_data, files, internal_process)
+                response["error_code"] = 0
+                response["message"] = "Despacho creado correctamente"
+                end_time = default_timer()
+                logger.info(f"Fin de la transacción, procesada en : {end_time - start_time} milisegundos",
+                            internal=internal_transaction_id, external=dispatch_dict['external_transaction_id'])
+                status_code = 200
         except Exception as ex:
             response, status_code = CustomAPIException.check_exception(ex, function_name, internal_process)
             

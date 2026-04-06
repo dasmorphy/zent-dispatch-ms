@@ -16,31 +16,25 @@ class DispatchImages(Base):
     __tablename__ = 'dispatch_images'
     __table_args__ = {'schema': 'public'}
 
-    id_product = Column(
+    id_image = Column(
         Integer,
         primary_key=True,
         autoincrement=True
     )
 
-    name = Column(Text)
-    price = Column(Numeric)
-    stock = Column(Integer)
-    presentation_type = Column(Text)
+    dispatch_id = Column(
+        Integer,
+        ForeignKey('public.dispatch.id_dispatch', onupdate='NO ACTION', ondelete='NO ACTION'),
+    )
+
+    process = Column(Text)
+    image_path = Column(Text)
 
     
     created_at = Column(
         DateTime,
         server_default=func.now()
     )
-
-    updated_at = Column(
-        DateTime,
-        server_default=func.now(),
-        onupdate=func.now()
-    )
-
-    created_by = Column(Text)
-    updated_by = Column(Text)
 
 
     def to_dict(self):

@@ -5,6 +5,7 @@
 from swagger_server.exception.custom_error_exception import CustomAPIException
 from swagger_server.models.db.dispatch import Dispatch
 from swagger_server.models.request_dispatch import RequestDispatch
+from swagger_server.models.request_dispatch_dispatch_data import RequestDispatchDispatchData
 from swagger_server.models.request_reception import RequestReception
 from swagger_server.repository.dispatch_repository import DispatchRepository
 
@@ -15,13 +16,14 @@ class DispatchUseCase:
         self.dispatch_repository = dispatch_repository
 
 
-    def post_dispatch(self, body: RequestDispatch, images, internal_process: tuple) -> None:
+    def post_dispatch(self, body: RequestDispatchDispatchData, images, internal_process: tuple) -> None:
 
         if len(images) > 10:
             raise CustomAPIException("Máximo 10 imagenes", 500)
         
         internal, external = internal_process
-        self.dispatch_repository.post_dispatch(body.dispatch_data, images, internal, external)
+        
+        self.dispatch_repository.post_dispatch(body, images, internal, external)
 
     def update_dispatch(self, body: RequestDispatch, id_disp: int, internal_process: tuple) -> None:
         internal, external = internal_process

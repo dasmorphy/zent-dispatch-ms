@@ -298,7 +298,7 @@ paths:
       operationId: post_dispatch
       requestBody:
         content:
-          application/json:
+          multipart/form-data:
             schema:
               $ref: "#/components/schemas/RequestDispatch"
       responses:

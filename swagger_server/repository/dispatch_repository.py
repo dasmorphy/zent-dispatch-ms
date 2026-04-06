@@ -447,8 +447,8 @@ class DispatchRepository:
                         )
                         session.add(reception_detail)
 
-                elif body.is_correct and (body.reception_details is None or len(body.reception_details) == 0):
-                    raise CustomAPIException("El detalle de recepción no puede ser vacío", 400)
+                elif not body.is_correct and not body.reception_details:
+                    raise CustomAPIException("El comentario de un producto con discrepancia no puede ser vacío", 400)
 
 
                 dispatch_status = session.execute(

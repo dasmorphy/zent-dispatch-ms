@@ -415,6 +415,18 @@ class DispatchRepository:
                 if not dispatch_exists:
                     raise CustomAPIException("Despacho no encontrado", 404)
                 
+                logger.info(
+                    "Reception body: {}",
+                    json.dumps({
+                        "dispatch_id": body.dispatch_id,
+                        "is_correct": body.is_correct,
+                        "observations": body.observations,
+                        "created_by": body.user
+                    }, ensure_ascii=False),
+                    internal=internal,
+                    external=external
+                )
+                
                 reception_data = DispatchReception(
                     dispatch_id=body.dispatch_id,
                     is_correct=body.is_correct,

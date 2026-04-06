@@ -223,8 +223,8 @@ class DispatchRepository:
                 raise CustomAPIException("El producto no existe", 404)
             
             product_sku = ProductsSku(
-                product_id=data.id_product,
-                quantity=data.quantity,
+                product_id=data["id_product"],
+                quantity=data["quantity"],
                 sku_id=sku_id
             )
             

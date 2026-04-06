@@ -276,7 +276,7 @@ class DispatchRepository:
                 if isinstance(exception, CustomAPIException):
                     raise exception
                 
-                raise CustomAPIException("Error al obtener en la base de datos", 500)
+                raise CustomAPIException("Error al obtener los productos en la base de datos", 500)
             
     def get_vehicle_types(self, internal, external):
         with self.db.session_factory() as session:
@@ -301,7 +301,7 @@ class DispatchRepository:
                 if isinstance(exception, CustomAPIException):
                     raise exception
                 
-                raise CustomAPIException("Error al obtener en la base de datos", 500)
+                raise CustomAPIException("Error al obtener los tipos de vehículos en la base de datos", 500)
             
     def get_status_dispatch(self, internal, external):
         with self.db.session_factory() as session:
@@ -323,7 +323,7 @@ class DispatchRepository:
                 if isinstance(exception, CustomAPIException):
                     raise exception
                 
-                raise CustomAPIException("Error al obtener en la base de datos", 500)
+                raise CustomAPIException("Error al obtener los estados de despacho en la base de datos", 500)
             
     def get_all_dispatch(self, filtersBase, internal, external):
         with self.db.session_factory() as session:
@@ -403,7 +403,7 @@ class DispatchRepository:
                 if isinstance(exception, CustomAPIException):
                     raise exception
                 
-                raise CustomAPIException("Error al obtener en la base de datos", 500)
+                raise CustomAPIException("Error al obtener los despachos en la base de datos", 500)
             
     def post_reception(self, body: Receptiondata, images, internal, external) -> None:
         saved_files = []
@@ -471,7 +471,7 @@ class DispatchRepository:
                     saved_files.append(result["url"])
 
                     image = DispatchImages(
-                        dispatch_id=dispatch_exists.id_dispatch,
+                        dispatch_id=body.dispatch_id,
                         image_path=result["url"],
                         process="save_reception"
                     )
@@ -497,7 +497,7 @@ class DispatchRepository:
                 if isinstance(exception, CustomAPIException):
                     raise exception
                 
-                raise CustomAPIException("Error al obtener en la base de datos", 500)
+                raise CustomAPIException("Error al guardar la recepción en la base de datos", 500)
             
     def save_image(self, file):
         folder = "/var/www/uploads/dispatches"

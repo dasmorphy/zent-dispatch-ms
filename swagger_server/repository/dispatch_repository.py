@@ -41,11 +41,8 @@ class DispatchRepository:
                 sku_saved = self.saveSku(session, data, internal, external)
                 products = data.products_sku
                 dispatch_saved = self.saveDispatch(session, data, sku_saved.id_sku, internal, external)
-                logger.info("productsss: {}", json.dumps(products, ensure_ascii=False), internal=internal, external=external)
 
                 for product in products:
-                    logger.info("product: {}", json.dumps(product, ensure_ascii=False), internal=internal, external=external)
-
                     self.saveProductSku(
                         session,
                         sku_saved.id_sku,
@@ -209,7 +206,6 @@ class DispatchRepository:
         
 
     def saveProductSku(self, session, sku_id: int, data, internal, external):
-        logger.info("DATA PRODUCT SKU: {}", json.dumps(data, ensure_ascii=False), internal=internal, external=external)
         try:
             product_exists = session.execute(
                 select(

@@ -15,9 +15,11 @@ class Receptiondata(Model):
 
     Do not edit the class manually.
     """
-    def __init__(self, dispatch_id: int=None, is_correct: bool=None, reception_details: List[ReceptionDetailData]=None, user: str=None, observations: str=None):  # noqa: E501
+    def __init__(self, images: List[str]=None, dispatch_id: int=None, is_correct: bool=None, reception_details: List[ReceptionDetailData]=None, user: str=None, observations: str=None):  # noqa: E501
         """Receptiondata - a model defined in Swagger
 
+        :param images: The images of this Receptiondata.  # noqa: E501
+        :type images: List[str]
         :param dispatch_id: The dispatch_id of this Receptiondata.  # noqa: E501
         :type dispatch_id: int
         :param is_correct: The is_correct of this Receptiondata.  # noqa: E501
@@ -30,6 +32,7 @@ class Receptiondata(Model):
         :type observations: str
         """
         self.swagger_types = {
+            'images': List[str],
             'dispatch_id': int,
             'is_correct': bool,
             'reception_details': List[ReceptionDetailData],
@@ -38,12 +41,14 @@ class Receptiondata(Model):
         }
 
         self.attribute_map = {
+            'images': 'images',
             'dispatch_id': 'dispatch_id',
             'is_correct': 'is_correct',
             'reception_details': 'reception_details',
             'user': 'user',
             'observations': 'observations'
         }
+        self._images = images
         self._dispatch_id = dispatch_id
         self._is_correct = is_correct
         self._reception_details = reception_details
@@ -60,6 +65,27 @@ class Receptiondata(Model):
         :rtype: Receptiondata
         """
         return util.deserialize_model(dikt, cls)
+
+    @property
+    def images(self) -> List[str]:
+        """Gets the images of this Receptiondata.
+
+
+        :return: The images of this Receptiondata.
+        :rtype: List[str]
+        """
+        return self._images
+
+    @images.setter
+    def images(self, images: List[str]):
+        """Sets the images of this Receptiondata.
+
+
+        :param images: The images of this Receptiondata.
+        :type images: List[str]
+        """
+
+        self._images = images
 
     @property
     def dispatch_id(self) -> int:

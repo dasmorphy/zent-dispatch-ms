@@ -269,22 +269,30 @@ class DispatchView(MethodView):
         response = {}
         status_code = 500
         try:
-            if connexion.request.is_json:
+            if request.content_type.startswith("multipart/form-data"):
                 start_time = default_timer()
                 internal_transaction_id = str(generate_internal_transaction_id())
-                body = RequestReception.from_dict(connexion.request.get_json())  # noqa: E501
-                external_transaction_id = body.external_transaction_id
+
+                reception_file = request.files.get("reception_data")
+                if not reception_file:
+                    raise CustomAPIException("Campo reception_data no enviado", 400)
+                
+                reception_raw = reception_file.read().decode("utf-8")
+                reception_dict = json.loads(reception_raw)
+                reception_data = RequestReception.from_json(reception_dict)
+
+                external_transaction_id = reception_dict['external_transaction_id']
                 internal_process = (internal_transaction_id, external_transaction_id)
                 response["internal_transaction_id"] = internal_transaction_id
                 response["external_transaction_id"] = external_transaction_id
-                message = f"start request: {function_name}, channel: {body.channel}"
+                message = f"start request: {function_name}, channel: {reception_dict['channel']}"
                 logger.info(message, internal=internal_transaction_id, external=external_transaction_id)
-                self.dispatch_use_case.post_reception(body, internal_process)
+                self.dispatch_use_case.post_reception(reception_data, internal_process)
                 response["error_code"] = 0
                 response["message"] = "Recepción creada correctamente"
                 end_time = default_timer()
                 logger.info(f"Fin de la transacción, procesada en : {end_time - start_time} milisegundos",
-                            internal=internal_transaction_id, external=body.external_transaction_id)
+                            internal=internal_transaction_id, external=external_transaction_id)
                 status_code = 200
         except Exception as ex:
             response, status_code = CustomAPIException.check_exception(ex, function_name, internal_process)

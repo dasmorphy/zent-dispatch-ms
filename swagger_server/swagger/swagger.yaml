@@ -183,7 +183,7 @@ paths:
       operationId: post_reception
       requestBody:
         content:
-          application/json:
+          multipart/form-data:
             schema:
               $ref: "#/components/schemas/RequestReception"
       responses:
@@ -519,6 +519,13 @@ components:
     Receptiondata:
       type: object
       properties:
+        images:
+          nullable: true
+          maxItems: 10
+          type: array
+          items:
+            type: string
+            format: binary
         dispatch_id:
           type: integer
           example: 1

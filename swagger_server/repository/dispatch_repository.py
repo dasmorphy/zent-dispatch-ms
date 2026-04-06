@@ -425,7 +425,7 @@ class DispatchRepository:
                 session.add(reception_data)
                 session.flush()
 
-                if (body.is_correct and body.reception_details):
+                if not body.is_correct and body.reception_details:
                     for detail in body.reception_details:
                         product_exists = session.execute(
                             select(

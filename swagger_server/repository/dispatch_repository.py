@@ -1,4 +1,5 @@
 import getpass
+import json
 import os
 from uuid import uuid4
 
@@ -40,9 +41,10 @@ class DispatchRepository:
                 sku_saved = self.saveSku(session, data, internal, external)
                 products = data.products_sku
                 dispatch_saved = self.saveDispatch(session, data, sku_saved.id_sku, internal, external)
-                print("DISPATCH GUARDADO", products)
+                logger.info("productsss: {}", json.dumps(products, ensure_ascii=False), internal=internal, external=external)
+
                 for product in products:
-                    print("DISPATCH GUARDADO", product)
+                    logger.info("product: {}", json.dumps(product, ensure_ascii=False), internal=internal, external=external)
 
                     self.saveProductSku(
                         session,
@@ -207,7 +209,7 @@ class DispatchRepository:
         
 
     def saveProductSku(self, session, sku_id: int, data, internal, external):
-        print("DATA PRODUCT SKU", data)
+        logger.info("DATA PRODUCT SKU: {}", json.dumps(data, ensure_ascii=False), internal=internal, external=external)
         try:
             product_exists = session.execute(
                 select(

@@ -214,7 +214,7 @@ class DispatchRepository:
             product_exists = session.execute(
                 select(
                     exists().where(
-                        DispatchProducts.id_product == data.id_product
+                        DispatchProducts.id_product == data["id_product"]
                     )
                 )
             ).scalar()

@@ -422,6 +422,18 @@ class DispatchRepository:
                     created_by=body.user
                 )
 
+                logger.info(
+                    "Reception data: {}",
+                    json.dumps({
+                        "dispatch_id": reception_data.dispatch_id,
+                        "is_correct": reception_data.is_correct,
+                        "observations": reception_data.observations,
+                        "created_by": reception_data.created_by
+                    }, ensure_ascii=False),
+                    internal=internal,
+                    external=external
+                )
+
                 session.add(reception_data)
                 session.flush()
 

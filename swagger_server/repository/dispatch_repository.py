@@ -40,8 +40,10 @@ class DispatchRepository:
                 sku_saved = self.saveSku(session, data, internal, external)
                 products = data.products_sku
                 dispatch_saved = self.saveDispatch(session, data, sku_saved.id_sku, internal, external)
-
+                print("DISPATCH GUARDADO", products)
                 for product in products:
+                    print("DISPATCH GUARDADO", product)
+
                     self.saveProductSku(
                         session,
                         sku_saved.id_sku,
@@ -205,6 +207,7 @@ class DispatchRepository:
         
 
     def saveProductSku(self, session, sku_id: int, data, internal, external):
+        print("DATA PRODUCT SKU", data)
         try:
             product_exists = session.execute(
                 select(

@@ -7,6 +7,7 @@ from flask.views import MethodView
 from loguru import logger
 
 from swagger_server.exception.custom_error_exception import CustomAPIException
+from swagger_server.models.reception_data import Receptiondata
 from swagger_server.models.request_dispatch import RequestDispatch  # noqa: E501
 from swagger_server.models.request_dispatch_dispatch_data import RequestDispatchDispatchData
 from swagger_server.models.request_reception import RequestReception
@@ -279,7 +280,7 @@ class DispatchView(MethodView):
                 
                 reception_raw = reception_file.read().decode("utf-8")
                 reception_dict = json.loads(reception_raw)
-                reception_data = RequestReception.from_json(reception_dict)
+                reception_data = Receptiondata.from_json(reception_dict)
 
                 external_transaction_id = reception_dict['external_transaction_id']
                 internal_process = (internal_transaction_id, external_transaction_id)

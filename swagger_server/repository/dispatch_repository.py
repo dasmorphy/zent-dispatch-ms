@@ -415,37 +415,13 @@ class DispatchRepository:
                 if not dispatch_exists:
                     raise CustomAPIException("Despacho no encontrado", 404)
                 
-                logger.info(
-                    "Reception body: {}",
-                    json.dumps({
-                        "dispatch_id": body.dispatch_id,
-                        "is_correct": body.is_correct,
-                        "observations": body.observations,
-                        "created_by": body.user
-                    }, ensure_ascii=False),
-                    internal=internal,
-                    external=external
-                )
-                
                 reception_data = DispatchReception(
                     dispatch_id=body.dispatch_id,
                     is_correct=body.is_correct,
                     observations=body.observations,
                     created_by=body.user
                 )
-
-                logger.info(
-                    "Reception data: {}",
-                    json.dumps({
-                        "dispatch_id": reception_data.dispatch_id,
-                        "is_correct": reception_data.is_correct,
-                        "observations": reception_data.observations,
-                        "created_by": reception_data.created_by
-                    }, ensure_ascii=False),
-                    internal=internal,
-                    external=external
-                )
-
+                
                 session.add(reception_data)
                 session.flush()
 
@@ -522,6 +498,60 @@ class DispatchRepository:
                     raise exception
                 
                 raise CustomAPIException("Error al guardar la recepción en la base de datos", 500)
+            
+    def post_entry_control(self, data, images, internal, external):
+        saved_files = []
+
+        with self.db.session_factory() as session:
+            try:
+                dispatch_exists = session.get(Dispatch, body.dispatch_id)
+
+                if not dispatch_exists:
+                    raise CustomAPIException("Despacho no encontrado", 404)
+                
+                reception_data = DispatchReception(
+                    dispatch_id=body.dispatch_id,
+                    is_correct=body.is_correct,
+                    observations=body.observations,
+                    created_by=body.user
+                )
+                
+                session.add(reception_data)
+                session.flush()
+
+                for file in images[:10]:
+                    result = self.save_image(file)
+                    saved_files.append(result["url"])
+
+                    image = DispatchImages(
+                        dispatch_id=body.dispatch_id,
+                        image_path=result["url"],
+                        process="save_reception"
+                    )
+
+                    session.add(image)
+
+                session.commit()
+
+            except OSError as e:
+                if e.errno == 36:
+                    raise CustomAPIException("Nombre de archivo demasiado largo", 400)
+            
+            except Exception as exception:
+                session.rollback()
+
+                #limpia archivos guardados si falla DB
+                for path in saved_files:
+                    full_path = os.path.join("/var/www", path.lstrip("/"))
+                    if os.path.exists(full_path):
+                        os.remove(full_path)
+                
+                logger.error('Error: {}', str(exception), internal=internal, external=external)
+                if isinstance(exception, CustomAPIException):
+                    raise exception
+                
+                raise CustomAPIException("Error al guardar la recepción en la base de datos", 500)
+
             
     def save_image(self, file):
         folder = "/var/www/uploads/dispatches"

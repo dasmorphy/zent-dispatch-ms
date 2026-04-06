@@ -7,6 +7,7 @@ from flask.views import MethodView
 from loguru import logger
 
 from swagger_server.exception.custom_error_exception import CustomAPIException
+from swagger_server.models.entry_control_data import EntryControlData
 from swagger_server.models.reception_data import Receptiondata
 from swagger_server.models.request_dispatch import RequestDispatch  # noqa: E501
 from swagger_server.models.request_dispatch_dispatch_data import RequestDispatchDispatchData
@@ -295,6 +296,44 @@ class DispatchView(MethodView):
                 end_time = default_timer()
                 logger.info(f"Fin de la transacción, procesada en : {end_time - start_time} milisegundos",
                             internal=internal_transaction_id, external=external_transaction_id)
+                status_code = 200
+        except Exception as ex:
+            response, status_code = CustomAPIException.check_exception(ex, function_name, internal_process)
+            
+        return response, status_code
+    
+
+    def post_entry_control(self):  # noqa: E501
+        internal_process = (None, None)
+        function_name = "post_dispatch"
+        response = {}
+        status_code = 500
+        try:
+            if request.content_type.startswith("multipart/form-data"):
+                start_time = default_timer()
+                internal_transaction_id = str(generate_internal_transaction_id())
+
+                entry_file = request.files.get("entry_data")
+                if not entry_file:
+                    raise CustomAPIException("Campo entry_data no enviado", 400)
+
+                entry_raw = entry_file.read().decode("utf-8")
+                entry_dict = json.loads(entry_raw)
+                entry_data = EntryControlData.from_json(entry_dict)
+                
+                external_transaction_id = entry_dict['external_transaction_id']
+                internal_process = (internal_transaction_id, external_transaction_id)
+                response["internal_transaction_id"] = internal_transaction_id
+                response["external_transaction_id"] = external_transaction_id
+                message = f"start request: {function_name}, channel: {entry_dict['channel']}"
+                logger.info(message, internal=internal_transaction_id, external=external_transaction_id)
+                files = request.files.getlist("images")
+                self.dispatch_use_case.post_entry_control(entry_data, files, internal_process)
+                response["error_code"] = 0
+                response["message"] = "Despacho creado correctamente"
+                end_time = default_timer()
+                logger.info(f"Fin de la transacción, procesada en : {end_time - start_time} milisegundos",
+                            internal=internal_transaction_id, external=entry_dict['external_transaction_id'])
                 status_code = 200
         except Exception as ex:
             response, status_code = CustomAPIException.check_exception(ex, function_name, internal_process)

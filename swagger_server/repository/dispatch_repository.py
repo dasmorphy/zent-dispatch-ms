@@ -405,7 +405,9 @@ class DispatchRepository:
                 
                 raise CustomAPIException("Error al obtener en la base de datos", 500)
             
-    def post_reception(self, body: Receptiondata, internal, external) -> None:
+    def post_reception(self, body: Receptiondata, images, internal, external) -> None:
+        saved_files = []
+
         with self.db.session_factory() as session:
             try:
                 dispatch_exists = session.get(Dispatch, body.dispatch_id)
@@ -463,10 +465,34 @@ class DispatchRepository:
                 dispatch_exists.updated_at = func.now()
 
                 session.add(dispatch_exists)
+
+                for file in images[:10]:
+                    result = self.save_image(file)
+                    saved_files.append(result["url"])
+
+                    image = DispatchImages(
+                        dispatch_id=dispatch_exists.id_dispatch,
+                        image_path=result["url"],
+                        process="save_reception"
+                    )
+
+                    session.add(image)
+
                 session.commit()
+
+            except OSError as e:
+                if e.errno == 36:
+                    raise CustomAPIException("Nombre de archivo demasiado largo", 400)
             
             except Exception as exception:
                 session.rollback()
+
+                #limpia archivos guardados si falla DB
+                for path in saved_files:
+                    full_path = os.path.join("/var/www", path.lstrip("/"))
+                    if os.path.exists(full_path):
+                        os.remove(full_path)
+                
                 logger.error('Error: {}', str(exception), internal=internal, external=external)
                 if isinstance(exception, CustomAPIException):
                     raise exception

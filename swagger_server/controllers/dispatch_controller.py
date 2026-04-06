@@ -287,7 +287,8 @@ class DispatchView(MethodView):
                 response["external_transaction_id"] = external_transaction_id
                 message = f"start request: {function_name}, channel: {reception_dict['channel']}"
                 logger.info(message, internal=internal_transaction_id, external=external_transaction_id)
-                self.dispatch_use_case.post_reception(reception_data, internal_process)
+                files = request.files.getlist("images")
+                self.dispatch_use_case.post_reception(reception_data, files, internal_process)
                 response["error_code"] = 0
                 response["message"] = "Recepción creada correctamente"
                 end_time = default_timer()

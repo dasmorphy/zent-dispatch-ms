@@ -69,6 +69,10 @@ class DispatchUseCase:
             for dispatch, dispatch_sku, dispatch_status, name_destiny, name_vehicle_type, products_sku in rows
         ]
     
-    def post_reception(self, body: RequestReception, internal_process: tuple) -> None:        
+    def post_reception(self, body: RequestReception, images, internal_process: tuple) -> None:        
         internal, external = internal_process
-        self.dispatch_repository.post_reception(body.reception_data, internal, external)
+        
+        if len(images) > 10:
+            raise CustomAPIException("Máximo 10 imagenes", 500)
+
+        self.dispatch_repository.post_reception(body.reception_data, images, internal, external)

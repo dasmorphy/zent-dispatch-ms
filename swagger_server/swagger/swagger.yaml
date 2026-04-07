@@ -342,6 +342,59 @@ paths:
               schema:
                 $ref: "#/components/schemas/ResponseError"
       x-openapi-router-controller: swagger_server.controllers.dispatch_controller.DispatchView
+  /entry-access/{entry_id}:
+    patch:
+      tags:
+      - Access Control
+      summary: Actualiza el ingreso en la base de datos.
+      description: Actualiza de ingreso
+      operationId: update_entry_access
+      parameters:
+      - name: entry_id
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+          example: 1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RequestEntryControl"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResponseError"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResponseError"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResponseError"
+        "503":
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResponseError"
+      x-openapi-router-controller: swagger_server.controllers.dispatch_controller.DispatchView
   /entry-access:
     get:
       tags:
@@ -871,23 +924,30 @@ components:
       properties:
         dni:
           type: string
+          nullable: true
           example: "09999999"
         names_visit:
+          nullable: true
           type: string
           example: "Juan Carlos"
         reason_visit:
+          nullable: true
           type: string
           example: "N/A"
         area_visit:
+          nullable: true
           type: integer
           example: 1
         person_charge:
+          nullable: true
           type: integer
           example: 1
         user:
+          nullable: true
           type: string
           example: "dmales"
         material_entry:
+          nullable: true
           type: array
           items:
             $ref: "#/components/schemas/MaterialAccessData"

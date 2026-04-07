@@ -8,6 +8,7 @@ from swagger_server.models.entry_control_data import EntryControlData
 from swagger_server.models.reception_data import Receptiondata
 from swagger_server.models.request_dispatch import RequestDispatch
 from swagger_server.models.request_dispatch_dispatch_data import RequestDispatchDispatchData
+from swagger_server.models.request_entry_control import RequestEntryControl
 from swagger_server.models.request_reception import RequestReception
 from swagger_server.repository.dispatch_repository import DispatchRepository
 
@@ -115,7 +116,8 @@ class DispatchUseCase:
                 "area_name": area.name,
                 "staff_charge_id": access_control.staff_charge_id,
                 "staff_charge_name": staff.name,
-                "observations": access_control.observations,
+                "observations_entry": access_control.observations_entry,
+                "observations_out": access_control.observations_out,
                 "status": access_control.status,
                 "created_at": access_control.created_at,
                 "updated_at": access_control.updated_at,
@@ -125,3 +127,7 @@ class DispatchUseCase:
             }
             for access_control, area, staff, images in rows
         ]
+    
+    def update_entry_access(self, body: RequestEntryControl, id_entry: int, internal_process: tuple) -> None:
+        internal, external = internal_process
+        self.dispatch_repository.update_entry_access(body.entry_data, id_entry, internal, external)

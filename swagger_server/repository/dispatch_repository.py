@@ -527,7 +527,7 @@ class DispatchRepository:
                     reason_visit=body.reason_visit,
                     area_visit_id=body.area_visit,
                     staff_charge_id=body.person_charge,
-                    observations=body.observations,
+                    observations_entry=body.observations,
                     created_by=body.user,
                     updated_by=body.user,
                     status="Pendiente Salida"
@@ -776,3 +776,39 @@ class DispatchRepository:
                     raise exception
                 
                 raise CustomAPIException("Error al obtener los ingresos en la base de datos", 500)
+            
+
+    def update_entry_access(self, data, id_entry: int, internal, external):
+        with self.db.session_factory() as session:
+            try:
+                
+                entry_exist = session.get(BiomarAccessControl, id_entry)
+
+                if not entry_exist:
+                    raise CustomAPIException("Ingreso no encontrado", 404)
+                
+                update_fields = {
+                    "observations_out": data.observations,
+                    "status": "Finalizado"
+                }
+
+                for field, value in update_fields.items():
+                    if value is not None:
+                        setattr(entry_exist, field, value)
+
+                entry_exist.updated_by = data.user
+                entry_exist.updated_at = func.now()
+                
+                session.add(entry_exist)
+                session.commit()
+
+            except Exception as exception:
+                session.rollback()
+                logger.error('Error: {}', str(exception), internal=internal, external=external)
+                if isinstance(exception, CustomAPIException):
+                    raise exception
+                
+                raise CustomAPIException("Error al actualizar el ingreso en la base de datos", 500)
+
+            finally:
+                session.close()

@@ -37,7 +37,8 @@ class BiomarAccessControl(Base):
     )
 
 
-    observations = Column(Text)
+    observations_entry = Column(Text)
+    observations_out = Column(Text)
 
     status = Column(Text)
 

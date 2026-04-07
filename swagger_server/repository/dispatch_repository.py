@@ -4,7 +4,7 @@ import os
 from uuid import uuid4
 
 from loguru import logger
-from sqlalchemy import and_, exists, func, select
+from sqlalchemy import JSON, and_, exists, func, select
 from werkzeug.utils import secure_filename
 
 from swagger_server.exception.custom_error_exception import CustomAPIException
@@ -529,7 +529,8 @@ class DispatchRepository:
                     staff_charge_id=body.person_charge,
                     observations=body.observations,
                     created_by=body.user,
-                    updated_by=body.user
+                    updated_by=body.user,
+                    status="Pendiente Salida"
                 )
                 
                 session.add(access_control)
@@ -712,3 +713,66 @@ class DispatchRepository:
                     raise exception
                 
                 raise CustomAPIException("Error al obtener el personal a cargo de despacho en la base de datos", 500)
+            
+    def get_entry_access(self, filtersBase, internal, external):
+        with self.db.session_factory() as session:
+            try:
+                stmt = (
+                    select(
+                        BiomarAccessControl,
+                        AreaVisit,
+                        StaffCharge,
+                        func.coalesce(
+                            func.json_agg(
+                                func.json_build_object(
+                                    "image_path", BiomarAccessImages.image_path,
+                                    "type_process", BiomarAccessImages.type_process
+                                )
+                            ).filter(BiomarAccessImages.image_path.isnot(None)),
+                            func.cast("[]", JSON)
+                        ).label("images")
+                    )
+                    .join(
+                        AreaVisit,
+                        AreaVisit.id_area == BiomarAccessControl.area_visit_id
+                    )
+                    .join(
+                        StaffCharge,
+                        StaffCharge.id_staff == BiomarAccessControl.staff_charge_id
+                    )
+                    .outerjoin(
+                        BiomarAccessImages,
+                        BiomarAccessImages.access_control_id == BiomarAccessControl.id_access_control
+                    )
+                    .group_by(
+                        BiomarAccessControl.id_access_control,
+                        AreaVisit.id_area,
+                        StaffCharge.id_staff
+                    )
+                )
+
+                filters = []
+
+                if filtersBase.get("user"):
+                    filters.append(BiomarAccessControl.created_by == filtersBase.get("user"))
+
+                if filtersBase.get("start_date"):
+                    filters.append(BiomarAccessControl.created_at >= filtersBase.get("start_date"))
+
+                if filtersBase.get("end_date"):
+                    filters.append(BiomarAccessControl.created_at <= filtersBase.get("end_date"))
+
+                if filters:
+                    stmt = stmt.where(and_(*filters))
+                
+                stmt = stmt.order_by(BiomarAccessControl.created_at.desc())
+
+                result = session.execute(stmt).all()
+                return result
+
+            except Exception as exception:
+                logger.error('Error: {}', str(exception), internal=internal, external=external)
+                if isinstance(exception, CustomAPIException):
+                    raise exception
+                
+                raise CustomAPIException("Error al obtener los ingresos en la base de datos", 500)

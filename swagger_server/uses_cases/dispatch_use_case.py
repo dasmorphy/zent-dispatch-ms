@@ -95,3 +95,33 @@ class DispatchUseCase:
     
     def get_staff_charge(self, internal, external):
         return self.dispatch_repository.get_staff_charge(internal, external)
+
+    def get_entry_access(self, headers, params, internal, external):
+        filters = {
+            "user": headers.get("user"),
+            "start_date": params.get("start_date"),
+            "end_date": params.get("end_date"),
+        }
+
+        rows = self.dispatch_repository.get_entry_access(filters, internal, external)
+
+        return [
+            {
+                "id_access_control": access_control.id_access_control,
+                "dni": access_control.dni,
+                "names_visit": access_control.names_visit,
+                "reason_visit": access_control.reason_visit,
+                "area_id": access_control.area_visit_id,
+                "area_name": area.name,
+                "staff_charge_id": access_control.staff_charge_id,
+                "staff_charge_name": staff.name,
+                "observations": access_control.observations,
+                "status": access_control.status,
+                "created_at": access_control.created_at,
+                "updated_at": access_control.updated_at,
+                "created_by": access_control.created_by,
+                "updated_by": access_control.updated_by,
+                "images": images
+            }
+            for access_control, area, staff, images in rows
+        ]

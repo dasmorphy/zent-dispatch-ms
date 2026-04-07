@@ -86,3 +86,12 @@ class DispatchUseCase:
             raise CustomAPIException("Máximo 10 imagenes", 500)
 
         self.dispatch_repository.post_entry_control(body, images, internal, external)
+
+    def get_materials(self, internal, external):
+        return self.dispatch_repository.get_materials(internal, external)
+    
+    def get_areas(self, internal, external):
+        return self.dispatch_repository.get_areas(internal, external)
+    
+    def get_staff_charge(self, internal, external):
+        return self.dispatch_repository.get_staff_charge(internal, external)

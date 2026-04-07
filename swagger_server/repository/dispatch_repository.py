@@ -644,3 +644,71 @@ class DispatchRepository:
             "url": f"/uploads/dispatches/{filename}"
         }
 
+
+    def get_materials(self, internal, external):
+        with self.db.session_factory() as session:
+            try:
+                result = session.execute(
+                    select(BiomarMaterialsAccess)
+                )
+                materials = [
+                    {
+                        "id_material": c.id_material,
+                        "name": c.name,
+                        "created_at": c.created_at
+                    }
+                    for c in result.scalars().all()
+                ]
+                return materials
+            except Exception as exception:
+                logger.error('Error: {}', str(exception), internal=internal, external=external)
+                if isinstance(exception, CustomAPIException):
+                    raise exception
+                
+                raise CustomAPIException("Error al obtener los materiales en la base de datos", 500)
+            
+            
+    def get_areas(self, internal, external):
+        with self.db.session_factory() as session:
+            try:
+                result = session.execute(
+                    select(AreaVisit)
+                )
+                areas = [
+                    {
+                        "id_area": c.id_area,
+                        "name": c.name,
+                        "created_at": c.created_at
+                    }
+                    for c in result.scalars().all()
+                ]
+                return areas
+            except Exception as exception:
+                logger.error('Error: {}', str(exception), internal=internal, external=external)
+                if isinstance(exception, CustomAPIException):
+                    raise exception
+                
+                raise CustomAPIException("Error al obtener las áreas de despacho en la base de datos", 500)
+            
+            
+    def get_staff_charge(self, internal, external):
+        with self.db.session_factory() as session:
+            try:
+                result = session.execute(
+                    select(StaffCharge)
+                )
+                staff = [
+                    {
+                        "id_staff": c.id_staff,
+                        "name": c.name,
+                        "created_at": c.created_at
+                    }
+                    for c in result.scalars().all()
+                ]
+                return staff
+            except Exception as exception:
+                logger.error('Error: {}', str(exception), internal=internal, external=external)
+                if isinstance(exception, CustomAPIException):
+                    raise exception
+                
+                raise CustomAPIException("Error al obtener el personal a cargo de despacho en la base de datos", 500)

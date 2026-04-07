@@ -340,3 +340,120 @@ class DispatchView(MethodView):
             
         return response, status_code
     
+    def get_materials(self):  # noqa: E501
+        """Obtiene todos los materiales para ingresos de biomar
+
+        Devuelve todos los materiales de la base # noqa: E501
+
+        :param external_transaction_id: 
+        :type external_transaction_id: str
+        :param channel: 
+        :type channel: str
+
+        :rtype: GenericResponse
+        """
+        internal_process = (None, None)
+        function_name = "get_materials"
+        response = {}
+        status_code = 500
+        try:
+            if connexion.request.headers:
+                start_time = default_timer()
+                internal_transaction_id = str(generate_internal_transaction_id())
+                external_transaction_id = request.headers.get('externalTransactionId')
+                internal_process = (internal_transaction_id, external_transaction_id)
+                response["internal_transaction_id"] = internal_transaction_id
+                response["external_transaction_id"] = external_transaction_id
+                message = f"start request: {function_name}, channel: {request.headers.get('channel')}"
+                logger.info(message, internal=internal_transaction_id, external=external_transaction_id)
+                results = self.dispatch_use_case.get_materials(internal_transaction_id, external_transaction_id)
+                response["error_code"] = 0
+                response["message"] = "Materiales obtenidos correctamente"
+                response["data"] = results
+                end_time = default_timer()
+                logger.info(f"Fin de la transacción, procesada en : {end_time - start_time} milisegundos",
+                            internal=internal_transaction_id, external=external_transaction_id)
+                status_code = 200
+        except Exception as ex:
+            response, status_code = CustomAPIException.check_exception(ex, function_name, internal_process)
+            
+        return response, status_code
+    
+    def get_areas(self):  # noqa: E501
+        """Obtiene todos los áreas de visita para ingresos de biomar
+
+        Devuelve todos las áreas de visitas de la base # noqa: E501
+
+        :param external_transaction_id: 
+        :type external_transaction_id: str
+        :param channel: 
+        :type channel: str
+
+        :rtype: GenericResponse
+        """
+        internal_process = (None, None)
+        function_name = "get_areas"
+        response = {}
+        status_code = 500
+        try:
+            if connexion.request.headers:
+                start_time = default_timer()
+                internal_transaction_id = str(generate_internal_transaction_id())
+                external_transaction_id = request.headers.get('externalTransactionId')
+                internal_process = (internal_transaction_id, external_transaction_id)
+                response["internal_transaction_id"] = internal_transaction_id
+                response["external_transaction_id"] = external_transaction_id
+                message = f"start request: {function_name}, channel: {request.headers.get('channel')}"
+                logger.info(message, internal=internal_transaction_id, external=external_transaction_id)
+                results = self.dispatch_use_case.get_areas(internal_transaction_id, external_transaction_id)
+                response["error_code"] = 0
+                response["message"] = "Áreas de visitas obtenidas correctamente"
+                response["data"] = results
+                end_time = default_timer()
+                logger.info(f"Fin de la transacción, procesada en : {end_time - start_time} milisegundos",
+                            internal=internal_transaction_id, external=external_transaction_id)
+                status_code = 200
+        except Exception as ex:
+            response, status_code = CustomAPIException.check_exception(ex, function_name, internal_process)
+            
+        return response, status_code
+    
+
+    def get_staff_charge(self):  # noqa: E501
+        """Obtiene todos el personal para ingresos de biomar
+
+        Devuelve todos el personal de la base # noqa: E501
+
+        :param external_transaction_id: 
+        :type external_transaction_id: str
+        :param channel: 
+        :type channel: str
+
+        :rtype: GenericResponse
+        """
+        internal_process = (None, None)
+        function_name = "get_staff_charge"
+        response = {}
+        status_code = 500
+        try:
+            if connexion.request.headers:
+                start_time = default_timer()
+                internal_transaction_id = str(generate_internal_transaction_id())
+                external_transaction_id = request.headers.get('externalTransactionId')
+                internal_process = (internal_transaction_id, external_transaction_id)
+                response["internal_transaction_id"] = internal_transaction_id
+                response["external_transaction_id"] = external_transaction_id
+                message = f"start request: {function_name}, channel: {request.headers.get('channel')}"
+                logger.info(message, internal=internal_transaction_id, external=external_transaction_id)
+                results = self.dispatch_use_case.get_staff_charge(internal_transaction_id, external_transaction_id)
+                response["error_code"] = 0
+                response["message"] = "Personal a cargo obtenidos correctamente"
+                response["data"] = results
+                end_time = default_timer()
+                logger.info(f"Fin de la transacción, procesada en : {end_time - start_time} milisegundos",
+                            internal=internal_transaction_id, external=external_transaction_id)
+                status_code = 200
+        except Exception as ex:
+            response, status_code = CustomAPIException.check_exception(ex, function_name, internal_process)
+            
+        return response, status_code

@@ -12,17 +12,37 @@ from sqlalchemy import (
 )
 
 
-class BiomarEntryReport(Base):
-    __tablename__ = 'biomar_entry_report'
+class BiomarAccessControl(Base):
+    __tablename__ = 'biomar_access_control'
     __table_args__ = {'schema': 'public'}
 
-    id_entry_report = Column(
+    id_access_control = Column(
         Integer,
         primary_key=True,
         nullable=False
     )
 
-    name = Column(Text)
+    dni = Column(Text)
+    names_visit = Column(Text)
+    reason_visit = Column(Text)
+
+    area_visit_id = Column(
+        Integer,
+        ForeignKey('public.area_visit.id_area', onupdate='NO ACTION', ondelete='NO ACTION'),
+    )
+
+    staff_charge_id = Column(
+        Integer,
+        ForeignKey('public.staff_charge.id_staff', onupdate='NO ACTION', ondelete='NO ACTION'),
+    )
+
+
+    observations = Column(Text)
+
+    status = Column(Text)
+
+    created_by = Column(Text)
+    updated_by = Column(Text)
     
     created_at = Column(
         DateTime,

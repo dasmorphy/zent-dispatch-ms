@@ -9,6 +9,10 @@ from werkzeug.utils import secure_filename
 
 from swagger_server.exception.custom_error_exception import CustomAPIException
 from swagger_server.models.db import Base
+from swagger_server.models.db.access_control_materials import AcessControlMaterials
+from swagger_server.models.db.biomar_access_images import BiomarAccessImages
+from swagger_server.models.db.biomar_entry_report import BiomarAccessControl
+from swagger_server.models.db.biomar_materials_access import BiomarMaterialsAccess
 from swagger_server.models.db.destiny_intern import DestinyIntern
 from swagger_server.models.db.dispatch import Dispatch
 from swagger_server.models.db.dispatch_images import DispatchImages
@@ -18,7 +22,10 @@ from swagger_server.models.db.dispatch_reception_detail import DispatchReception
 from swagger_server.models.db.dispatch_skus import DispatchSkus
 from swagger_server.models.db.products_sku import ProductsSku
 from swagger_server.models.db.vehicle_type import VehicleType
+from swagger_server.models.db.area_visit import AreaVisit
+from swagger_server.models.db.staff_charge import StaffCharge
 from swagger_server.models.db.dispatch_status import DispatchStatus
+from swagger_server.models.entry_control_data import EntryControlData
 from swagger_server.models.reception_data import Receptiondata
 from swagger_server.models.request_dispatch_dispatch_data import RequestDispatchDispatchData
 from swagger_server.models.request_reception import RequestReception
@@ -499,43 +506,64 @@ class DispatchRepository:
                 
                 raise CustomAPIException("Error al guardar la recepción en la base de datos", 500)
             
-    def post_entry_control(self, data, images, internal, external):
+    def post_entry_control(self, body: EntryControlData, images, internal, external):
         saved_files = []
 
         with self.db.session_factory() as session:
             try:
-                dispatch_exists = session.get(Dispatch, body.dispatch_id)
+                area_exists = session.get(AreaVisit, body.area_visit)
 
-                if not dispatch_exists:
-                    raise CustomAPIException("Despacho no encontrado", 404)
+                if not area_exists:
+                    raise CustomAPIException("Área de visita no encontrada", 404)
                 
-                reception_data = DispatchReception(
-                    dispatch_id=body.dispatch_id,
-                    is_correct=body.is_correct,
+                staff_exists = session.get(StaffCharge, body.person_charge)
+
+                if not staff_exists:
+                    raise CustomAPIException("Personal a cargo no encontrado", 404)
+                
+                access_control = BiomarAccessControl(
+                    dni=body.dni,
+                    names_visit=body.names_visit,
+                    reason_visit=body.reason_visit,
+                    area_visit_id=body.area_visit,
+                    staff_charge_id=body.person_charge,
                     observations=body.observations,
-                    created_by=body.user
+                    created_by=body.user,
+                    updated_by=body.user
                 )
                 
-                session.add(reception_data)
+                session.add(access_control)
                 session.flush()
 
-                for file in images[:10]:
-                    result = self.save_image(file)
-                    saved_files.append(result["url"])
-
-                    image = DispatchImages(
-                        dispatch_id=body.dispatch_id,
-                        image_path=result["url"],
-                        process="save_reception"
+                for material in body.material_entry:
+                    self.saveMaterialAccessControl(
+                        session,
+                        access_control.id_access_control,
+                        material,
+                        internal,
+                        external
                     )
 
-                    session.add(image)
+                for file in (images or [])[:10]:
+                    try:
+                        result = self.save_image(file)
+                        saved_files.append(result["url"])
+
+                        image = BiomarAccessImages(
+                            access_control_id=access_control.id_access_control,
+                            image_path=result["url"],
+                            process="entry"
+                        )
+
+                        session.add(image)
+                    except OSError as e:
+                        if e.errno == 36:
+                            raise CustomAPIException("Nombre de archivo demasiado largo", 400)
+                        
+                        logger.error('Error: {}', str(e), internal=internal, external=external)
+                        raise CustomAPIException("Error al subir las imágenes", 500)
 
                 session.commit()
-
-            except OSError as e:
-                if e.errno == 36:
-                    raise CustomAPIException("Nombre de archivo demasiado largo", 400)
             
             except Exception as exception:
                 session.rollback()
@@ -552,6 +580,33 @@ class DispatchRepository:
                 
                 raise CustomAPIException("Error al guardar la recepción en la base de datos", 500)
 
+    def saveMaterialAccessControl(self, session, access_control_id: int, data, internal, external):
+        try:
+            material_exists = session.execute(
+                select(
+                    exists().where(
+                        BiomarMaterialsAccess.id_material == data["id_material"]
+                    )
+                )
+            ).scalar()
+
+            if not material_exists:
+                raise CustomAPIException("El material no existe", 404)
+            
+            material_control = AcessControlMaterials(
+                access_control_id=access_control_id,
+                quantity=data["quantity"],
+                material_id=data["id_material"]
+            )
+            
+            session.add(material_control)
+
+        except Exception as exception:
+            logger.error('Error: {}', str(exception), internal=internal, external=external)
+            if isinstance(exception, CustomAPIException):
+                raise exception
+            
+            raise CustomAPIException("Error al guardar el material del ingreso en la base de datos", 500)
             
     def save_image(self, file):
         folder = "/var/www/uploads/dispatches"

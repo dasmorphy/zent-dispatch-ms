@@ -180,10 +180,10 @@ paths:
       - Access Control
       summary: Guarda el ingreso del personal de biomar en la base de datos.
       description: Guardado de ingreso del personal
-      operationId: post_entry_access
+      operationId: post_entry_control
       requestBody:
         content:
-          application/json:
+          multipart/form-data:
             schema:
               $ref: "#/components/schemas/RequestEntryControl"
       responses:
@@ -494,6 +494,15 @@ components:
         quantity:
           type: number
           example: 10
+    MaterialAccessData:
+      type: object
+      properties:
+        id_material:
+          type: integer
+          example: 1
+        quantity:
+          type: number
+          example: 10
     RequestDispatch_dispatch_data:
       type: object
       properties:
@@ -631,14 +640,18 @@ components:
           type: string
           example: "N/A"
         area_visit:
-          type: string
-          example: "N/A"
+          type: integer
+          example: 1
         person_charge:
+          type: integer
+          example: 1
+        user:
           type: string
-          example: "N/A"
+          example: "dmales"
         material_entry:
-          type: string
-          example: "N/A"
+          type: array
+          items:
+            $ref: "#/components/schemas/MaterialAccessData"
         observations:
           type: string
           nullable: true

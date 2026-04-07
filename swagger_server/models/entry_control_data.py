@@ -6,6 +6,7 @@ from datetime import date, datetime  # noqa: F401
 from typing import List, Dict  # noqa: F401
 
 from swagger_server.models.base_model_ import Model
+from swagger_server.models.material_access_data import MaterialAccessData  # noqa: F401,E501
 from swagger_server import util
 
 
@@ -14,7 +15,7 @@ class EntryControlData(Model):
 
     Do not edit the class manually.
     """
-    def __init__(self, dni: str=None, names_visit: str=None, reason_visit: str=None, area_visit: str=None, person_charge: str=None, material_entry: str=None, observations: str=None, images: List[str]=None):  # noqa: E501
+    def __init__(self, dni: str=None, names_visit: str=None, reason_visit: str=None, area_visit: int=None, person_charge: int=None, user: str=None, material_entry: List[MaterialAccessData]=None, observations: str=None, images: List[str]=None):  # noqa: E501
         """EntryControlData - a model defined in Swagger
 
         :param dni: The dni of this EntryControlData.  # noqa: E501
@@ -24,11 +25,13 @@ class EntryControlData(Model):
         :param reason_visit: The reason_visit of this EntryControlData.  # noqa: E501
         :type reason_visit: str
         :param area_visit: The area_visit of this EntryControlData.  # noqa: E501
-        :type area_visit: str
+        :type area_visit: int
         :param person_charge: The person_charge of this EntryControlData.  # noqa: E501
-        :type person_charge: str
+        :type person_charge: int
+        :param user: The user of this EntryControlData.  # noqa: E501
+        :type user: str
         :param material_entry: The material_entry of this EntryControlData.  # noqa: E501
-        :type material_entry: str
+        :type material_entry: List[MaterialAccessData]
         :param observations: The observations of this EntryControlData.  # noqa: E501
         :type observations: str
         :param images: The images of this EntryControlData.  # noqa: E501
@@ -38,9 +41,10 @@ class EntryControlData(Model):
             'dni': str,
             'names_visit': str,
             'reason_visit': str,
-            'area_visit': str,
-            'person_charge': str,
-            'material_entry': str,
+            'area_visit': int,
+            'person_charge': int,
+            'user': str,
+            'material_entry': List[MaterialAccessData],
             'observations': str,
             'images': List[str]
         }
@@ -51,6 +55,7 @@ class EntryControlData(Model):
             'reason_visit': 'reason_visit',
             'area_visit': 'area_visit',
             'person_charge': 'person_charge',
+            'user': 'user',
             'material_entry': 'material_entry',
             'observations': 'observations',
             'images': 'images'
@@ -60,6 +65,7 @@ class EntryControlData(Model):
         self._reason_visit = reason_visit
         self._area_visit = area_visit
         self._person_charge = person_charge
+        self._user = user
         self._material_entry = material_entry
         self._observations = observations
         self._images = images
@@ -139,64 +145,85 @@ class EntryControlData(Model):
         self._reason_visit = reason_visit
 
     @property
-    def area_visit(self) -> str:
+    def area_visit(self) -> int:
         """Gets the area_visit of this EntryControlData.
 
 
         :return: The area_visit of this EntryControlData.
-        :rtype: str
+        :rtype: int
         """
         return self._area_visit
 
     @area_visit.setter
-    def area_visit(self, area_visit: str):
+    def area_visit(self, area_visit: int):
         """Sets the area_visit of this EntryControlData.
 
 
         :param area_visit: The area_visit of this EntryControlData.
-        :type area_visit: str
+        :type area_visit: int
         """
 
         self._area_visit = area_visit
 
     @property
-    def person_charge(self) -> str:
+    def person_charge(self) -> int:
         """Gets the person_charge of this EntryControlData.
 
 
         :return: The person_charge of this EntryControlData.
-        :rtype: str
+        :rtype: int
         """
         return self._person_charge
 
     @person_charge.setter
-    def person_charge(self, person_charge: str):
+    def person_charge(self, person_charge: int):
         """Sets the person_charge of this EntryControlData.
 
 
         :param person_charge: The person_charge of this EntryControlData.
-        :type person_charge: str
+        :type person_charge: int
         """
 
         self._person_charge = person_charge
 
     @property
-    def material_entry(self) -> str:
+    def user(self) -> str:
+        """Gets the user of this EntryControlData.
+
+
+        :return: The user of this EntryControlData.
+        :rtype: str
+        """
+        return self._user
+
+    @user.setter
+    def user(self, user: str):
+        """Sets the user of this EntryControlData.
+
+
+        :param user: The user of this EntryControlData.
+        :type user: str
+        """
+
+        self._user = user
+
+    @property
+    def material_entry(self) -> List[MaterialAccessData]:
         """Gets the material_entry of this EntryControlData.
 
 
         :return: The material_entry of this EntryControlData.
-        :rtype: str
+        :rtype: List[MaterialAccessData]
         """
         return self._material_entry
 
     @material_entry.setter
-    def material_entry(self, material_entry: str):
+    def material_entry(self, material_entry: List[MaterialAccessData]):
         """Sets the material_entry of this EntryControlData.
 
 
         :param material_entry: The material_entry of this EntryControlData.
-        :type material_entry: str
+        :type material_entry: List[MaterialAccessData]
         """
 
         self._material_entry = material_entry

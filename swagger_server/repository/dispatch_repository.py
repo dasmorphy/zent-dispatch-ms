@@ -552,7 +552,7 @@ class DispatchRepository:
                         image = BiomarAccessImages(
                             access_control_id=access_control.id_access_control,
                             image_path=result["url"],
-                            process="entry"
+                            type_process="entry"
                         )
 
                         session.add(image)
@@ -578,7 +578,7 @@ class DispatchRepository:
                 if isinstance(exception, CustomAPIException):
                     raise exception
                 
-                raise CustomAPIException("Error al guardar la recepción en la base de datos", 500)
+                raise CustomAPIException("Error al guardar el ingreso en la base de datos", 500)
 
     def saveMaterialAccessControl(self, session, access_control_id: int, data, internal, external):
         try:

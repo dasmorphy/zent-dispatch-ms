@@ -336,6 +336,22 @@ class DispatchRepository:
         with self.db.session_factory() as session:
             try:
 
+                images_subq = (
+                    select(
+                        DispatchImages.dispatch_id,
+                        func.json_agg(
+                            func.json_build_object(
+                                "image_path", DispatchImages.image_path,
+                                "process", DispatchImages.process
+                            )
+                        )
+                        .filter(DispatchImages.image_path.isnot(None))
+                        .label("images")
+                    )
+                    .group_by(DispatchImages.dispatch_id)
+                    .subquery()
+                )
+
                 products_sku_subq = (
                     select(
                         ProductsSku.sku_id,
@@ -362,7 +378,8 @@ class DispatchRepository:
                         DispatchStatus,
                         DestinyIntern.name.label("name_destiny"),
                         VehicleType.name.label("name_vehicle_type"),
-                        func.coalesce(products_sku_subq.c.products_sku, '[]').label("products_sku")
+                        func.coalesce(products_sku_subq.c.products_sku, '[]').label("products_sku"),
+                        func.coalesce(images_subq.c.images, '[]').label("images")
                     )
                     .join(
                         DispatchSkus,
@@ -379,6 +396,10 @@ class DispatchRepository:
                     .join(
                         VehicleType,
                         VehicleType.id_vehicle_type == Dispatch.vehicle_type_id
+                    )
+                    .outerjoin(
+                        images_subq,
+                        images_subq.c.dispatch_id == Dispatch.id_dispatch
                     )
                     .outerjoin(
                         products_sku_subq,

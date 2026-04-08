@@ -123,9 +123,10 @@ class DispatchUseCase:
                 "updated_at": access_control.updated_at,
                 "created_by": access_control.created_by,
                 "updated_by": access_control.updated_by,
-                "images": images
+                "images": images,
+                "materials": materials
             }
-            for access_control, area, staff, images in rows
+            for access_control, area, staff, materials, images in rows
         ]
     
     def update_entry_access(self, body: RequestEntryControl, id_entry: int, internal_process: tuple) -> None:

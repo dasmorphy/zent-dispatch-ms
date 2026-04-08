@@ -717,20 +717,48 @@ class DispatchRepository:
     def get_entry_access(self, filtersBase, internal, external):
         with self.db.session_factory() as session:
             try:
+                images_subq = (
+                    select(
+                        BiomarAccessImages.access_control_id,
+                        func.json_agg(
+                            func.json_build_object(
+                                "image_path", BiomarAccessImages.image_path,
+                                "type_process", BiomarAccessImages.type_process
+                            )
+                        )
+                        .filter(BiomarAccessImages.image_path.isnot(None))
+                        .label("images")
+                    )
+                    .group_by(BiomarAccessImages.access_control_id)
+                    .subquery()
+                )
+
+                materials_subq = (
+                    select(
+                        AcessControlMaterials.access_control_id,
+                        func.json_agg(
+                            func.json_build_object(
+                                "id_material", AcessControlMaterials.material_id,
+                                "name", BiomarMaterialsAccess.name,
+                                "quantity", AcessControlMaterials.quantity
+                            )
+                        ).label("materials")
+                    )
+                    .join(
+                        BiomarMaterialsAccess,
+                        BiomarMaterialsAccess.id_material == AcessControlMaterials.material_id
+                    )
+                    .group_by(AcessControlMaterials.access_control_id)
+                    .subquery()
+                )
+
                 stmt = (
                     select(
                         BiomarAccessControl,
                         AreaVisit,
                         StaffCharge,
-                        func.coalesce(
-                            func.json_agg(
-                                func.json_build_object(
-                                    "image_path", BiomarAccessImages.image_path,
-                                    "type_process", BiomarAccessImages.type_process
-                                )
-                            ).filter(BiomarAccessImages.image_path.isnot(None)),
-                            func.cast("[]", JSON)
-                        ).label("images")
+                        func.coalesce(materials_subq.c.materials, '[]').label("materials"),
+                        func.coalesce(images_subq.c.images, '[]').label("images")
                     )
                     .join(
                         AreaVisit,
@@ -741,13 +769,12 @@ class DispatchRepository:
                         StaffCharge.id_staff == BiomarAccessControl.staff_charge_id
                     )
                     .outerjoin(
-                        BiomarAccessImages,
-                        BiomarAccessImages.access_control_id == BiomarAccessControl.id_access_control
+                        images_subq,
+                        images_subq.c.access_control_id == BiomarAccessControl.id_access_control
                     )
-                    .group_by(
-                        BiomarAccessControl.id_access_control,
-                        AreaVisit.id_area,
-                        StaffCharge.id_staff
+                    .outerjoin(
+                        materials_subq,
+                        materials_subq.c.access_control_id == BiomarAccessControl.id_access_control
                     )
                 )
 

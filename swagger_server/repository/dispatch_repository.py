@@ -805,7 +805,9 @@ class DispatchRepository:
                 raise CustomAPIException("Error al obtener los ingresos en la base de datos", 500)
             
 
-    def update_entry_access(self, data, id_entry: int, internal, external):
+    def update_entry_access(self, data, id_entry: int, images, internal, external):
+        saved_files = []
+        
         with self.db.session_factory() as session:
             try:
                 
@@ -825,12 +827,38 @@ class DispatchRepository:
 
                 entry_exist.updated_by = data.user
                 entry_exist.updated_at = func.now()
+
+                for file in (images or [])[:10]:
+                    try:
+                        result = self.save_image(file)
+                        saved_files.append(result["url"])
+
+                        image = BiomarAccessImages(
+                            access_control_id=entry_exist.id_access_control,
+                            image_path=result["url"],
+                            type_process="out"
+                        )
+
+                        session.add(image)
+                    except OSError as e:
+                        if e.errno == 36:
+                            raise CustomAPIException("Nombre de archivo demasiado largo", 400)
+                        
+                        logger.error('Error: {}', str(e), internal=internal, external=external)
+                        raise CustomAPIException("Error al subir las imágenes", 500)
                 
                 session.add(entry_exist)
                 session.commit()
 
             except Exception as exception:
                 session.rollback()
+
+                #limpia archivos guardados si falla DB
+                for path in saved_files:
+                    full_path = os.path.join("/var/www", path.lstrip("/"))
+                    if os.path.exists(full_path):
+                        os.remove(full_path)
+                
                 logger.error('Error: {}', str(exception), internal=internal, external=external)
                 if isinstance(exception, CustomAPIException):
                     raise exception

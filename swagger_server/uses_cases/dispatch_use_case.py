@@ -129,6 +129,6 @@ class DispatchUseCase:
             for access_control, area, staff, materials, images in rows
         ]
     
-    def update_entry_access(self, body: RequestEntryControl, id_entry: int, internal_process: tuple) -> None:
+    def update_entry_access(self, data: EntryControlData, id_entry: int, images, internal_process: tuple) -> None:
         internal, external = internal_process
-        self.dispatch_repository.update_entry_access(body.entry_data, id_entry, internal, external)
+        self.dispatch_repository.update_entry_access(data, id_entry, images, internal, external)

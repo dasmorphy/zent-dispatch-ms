@@ -51,7 +51,7 @@ class DispatchRepository:
                 for sku in data.sku:
                     new_sku = {
                         "user": data.user,
-                        "type_sku": sku.type_sku,
+                        "type_sku": sku["type_sku"],
                         "dispatch_id": dispatch_saved.id_dispatch
                     }
                     sku_saved = self.saveSku(session, new_sku, internal, external)

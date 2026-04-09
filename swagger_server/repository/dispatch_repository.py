@@ -98,7 +98,9 @@ class DispatchRepository:
                 session.close()
 
 
-    def update_dispatch(self, data: RequestDispatchDispatchData, id_disp: int, internal, external):
+    def update_dispatch(self, data: RequestDispatchDispatchData, id_disp: int, images, internal, external):
+        saved_files = []
+        
         with self.db.session_factory() as session:
             try:
                 
@@ -125,10 +127,38 @@ class DispatchRepository:
                 dispatch_exist.updated_at = func.now()
                 
                 session.add(dispatch_exist)
+
+                # Guardar imágenes (máx 10)
+                for file in (images or [])[:10]:
+                    try:
+                        result = self.save_image(file)
+                        saved_files.append(result["url"])
+
+                        image = DispatchImages(
+                            dispatch_id=dispatch_exist.id_dispatch,
+                            image_path=result["url"],
+                            process="update_dispatch"
+                        )
+
+                        session.add(image)
+                    except OSError as e:
+                        if e.errno == 36:
+                            raise CustomAPIException("Nombre de archivo demasiado largo", 400)
+                        
+                        logger.error('Error: {}', str(e), internal=internal, external=external)
+                        raise CustomAPIException("Error al subir las imágenes", 500)
+
                 session.commit()
 
             except Exception as exception:
                 session.rollback()
+
+                #limpia archivos guardados si falla DB
+                for path in saved_files:
+                    full_path = os.path.join("/var/www", path.lstrip("/"))
+                    if os.path.exists(full_path):
+                        os.remove(full_path)
+
                 logger.error('Error: {}', str(exception), internal=internal, external=external)
                 if isinstance(exception, CustomAPIException):
                     raise exception

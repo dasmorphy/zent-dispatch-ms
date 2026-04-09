@@ -28,9 +28,12 @@ class DispatchUseCase:
         
         self.dispatch_repository.post_dispatch(body, images, internal, external)
 
-    def update_dispatch(self, body: RequestDispatch, id_disp: int, internal_process: tuple) -> None:
+    def update_dispatch(self, data: RequestDispatchDispatchData, id_disp: int, images, internal_process: tuple) -> None:
+        if len(images) > 10:
+            raise CustomAPIException("Máximo 10 imagenes", 500)
+        
         internal, external = internal_process
-        self.dispatch_repository.update_dispatch(body.dispatch_data, id_disp, internal, external)
+        self.dispatch_repository.update_dispatch(data, id_disp, images, internal, external)
 
     def get_all_dispatch_products(self, internal, external):
         return self.dispatch_repository.get_all_dispatch_products(internal, external)

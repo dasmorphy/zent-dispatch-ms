@@ -786,6 +786,17 @@ components:
         quantity:
           type: number
           example: 10
+    RequestSkuData:
+      type: object
+      properties:
+        type_sku:
+          type: string
+          example: "Multiple"
+        products:
+          type: array
+          nullable: true
+          items:
+            $ref: "#/components/schemas/RequestDispatch_dispatch_data_products_sku"
     MaterialAccessData:
       type: object
       properties:
@@ -807,10 +818,6 @@ components:
           nullable: true
           type: integer
           example: 1
-        sku_type:
-          nullable: true
-          type: string
-          example: Multiple
         destiny:
           nullable: true
           type: integer
@@ -842,11 +849,11 @@ components:
           items:
             type: string
             format: binary
-        products_sku:
+        sku:
           type: array
           nullable: true
           items:
-            $ref: "#/components/schemas/RequestDispatch_dispatch_data_products_sku"
+            $ref: "#/components/schemas/RequestSkuData"
         observations:
           type: string
           nullable: true

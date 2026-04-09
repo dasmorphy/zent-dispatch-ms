@@ -64,16 +64,14 @@ class DispatchUseCase:
                 "updated_at": dispatch.updated_at,
                 "created_by": dispatch.created_by,
                 "updated_by": dispatch.updated_by,
-                "type_sku": dispatch_sku.type_sku,
                 "order_number": dispatch.order_number,
-                "products_sku": products_sku,
+                "skus": skus,
                 "name_vehicle_type": name_vehicle_type,
                 "name_destiny": name_destiny,
-                "sku_id": dispatch.sku_id,
                 "status": dispatch_status.name,
                 "images": images
             }
-            for dispatch, dispatch_sku, dispatch_status, name_destiny, name_vehicle_type, products_sku, images in rows
+            for dispatch, dispatch_status, name_destiny, name_vehicle_type, skus, images in rows
         ]
     
     def post_reception(self, body: Receptiondata, images, internal_process: tuple) -> None:        

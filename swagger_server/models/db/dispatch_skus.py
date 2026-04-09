@@ -21,6 +21,12 @@ class DispatchSkus(Base):
         autoincrement=True
     )
 
+    dispatch_id = Column(
+        Integer,
+        ForeignKey('public.dispatch.id_dispatch', onupdate='NO ACTION', ondelete='NO ACTION'),
+        nullable=False
+    )
+
     type_sku = Column(Text)
     
     created_at = Column(

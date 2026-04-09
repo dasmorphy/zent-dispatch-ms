@@ -6,7 +6,7 @@ from datetime import date, datetime  # noqa: F401
 from typing import List, Dict  # noqa: F401
 
 from swagger_server.models.base_model_ import Model
-from swagger_server.models.request_dispatch_dispatch_data_products_sku import RequestDispatchDispatchDataProductsSku  # noqa: F401,E501
+from swagger_server.models.request_sku_data import RequestSkuData  # noqa: F401,E501
 from swagger_server import util
 
 
@@ -15,15 +15,13 @@ class RequestDispatchDispatchData(Model):
 
     Do not edit the class manually.
     """
-    def __init__(self, weight: float=None, vehicle_type: int=None, sku_type: str=None, destiny: int=None, status_id: int=None, order_number: str=None, truck_license: str=None, user: str=None, driver: str=None, images: List[str]=None, products_sku: List[RequestDispatchDispatchDataProductsSku]=None, observations: str=None):  # noqa: E501
+    def __init__(self, weight: float=None, vehicle_type: int=None, destiny: int=None, status_id: int=None, order_number: str=None, truck_license: str=None, user: str=None, driver: str=None, images: List[str]=None, sku: List[RequestSkuData]=None, observations: str=None):  # noqa: E501
         """RequestDispatchDispatchData - a model defined in Swagger
 
         :param weight: The weight of this RequestDispatchDispatchData.  # noqa: E501
         :type weight: float
         :param vehicle_type: The vehicle_type of this RequestDispatchDispatchData.  # noqa: E501
         :type vehicle_type: int
-        :param sku_type: The sku_type of this RequestDispatchDispatchData.  # noqa: E501
-        :type sku_type: str
         :param destiny: The destiny of this RequestDispatchDispatchData.  # noqa: E501
         :type destiny: int
         :param status_id: The status_id of this RequestDispatchDispatchData.  # noqa: E501
@@ -38,15 +36,14 @@ class RequestDispatchDispatchData(Model):
         :type driver: str
         :param images: The images of this RequestDispatchDispatchData.  # noqa: E501
         :type images: List[str]
-        :param products_sku: The products_sku of this RequestDispatchDispatchData.  # noqa: E501
-        :type products_sku: List[RequestDispatchDispatchDataProductsSku]
+        :param sku: The sku of this RequestDispatchDispatchData.  # noqa: E501
+        :type sku: List[RequestSkuData]
         :param observations: The observations of this RequestDispatchDispatchData.  # noqa: E501
         :type observations: str
         """
         self.swagger_types = {
             'weight': float,
             'vehicle_type': int,
-            'sku_type': str,
             'destiny': int,
             'status_id': int,
             'order_number': str,
@@ -54,14 +51,13 @@ class RequestDispatchDispatchData(Model):
             'user': str,
             'driver': str,
             'images': List[str],
-            'products_sku': List[RequestDispatchDispatchDataProductsSku],
+            'sku': List[RequestSkuData],
             'observations': str
         }
 
         self.attribute_map = {
             'weight': 'weight',
             'vehicle_type': 'vehicle_type',
-            'sku_type': 'sku_type',
             'destiny': 'destiny',
             'status_id': 'status_id',
             'order_number': 'order_number',
@@ -69,12 +65,11 @@ class RequestDispatchDispatchData(Model):
             'user': 'user',
             'driver': 'driver',
             'images': 'images',
-            'products_sku': 'products_sku',
+            'sku': 'sku',
             'observations': 'observations'
         }
         self._weight = weight
         self._vehicle_type = vehicle_type
-        self._sku_type = sku_type
         self._destiny = destiny
         self._status_id = status_id
         self._order_number = order_number
@@ -82,7 +77,7 @@ class RequestDispatchDispatchData(Model):
         self._user = user
         self._driver = driver
         self._images = images
-        self._products_sku = products_sku
+        self._sku = sku
         self._observations = observations
 
     @classmethod
@@ -137,27 +132,6 @@ class RequestDispatchDispatchData(Model):
         """
 
         self._vehicle_type = vehicle_type
-
-    @property
-    def sku_type(self) -> str:
-        """Gets the sku_type of this RequestDispatchDispatchData.
-
-
-        :return: The sku_type of this RequestDispatchDispatchData.
-        :rtype: str
-        """
-        return self._sku_type
-
-    @sku_type.setter
-    def sku_type(self, sku_type: str):
-        """Sets the sku_type of this RequestDispatchDispatchData.
-
-
-        :param sku_type: The sku_type of this RequestDispatchDispatchData.
-        :type sku_type: str
-        """
-
-        self._sku_type = sku_type
 
     @property
     def destiny(self) -> int:
@@ -307,25 +281,25 @@ class RequestDispatchDispatchData(Model):
         self._images = images
 
     @property
-    def products_sku(self) -> List[RequestDispatchDispatchDataProductsSku]:
-        """Gets the products_sku of this RequestDispatchDispatchData.
+    def sku(self) -> List[RequestSkuData]:
+        """Gets the sku of this RequestDispatchDispatchData.
 
 
-        :return: The products_sku of this RequestDispatchDispatchData.
-        :rtype: List[RequestDispatchDispatchDataProductsSku]
+        :return: The sku of this RequestDispatchDispatchData.
+        :rtype: List[RequestSkuData]
         """
-        return self._products_sku
+        return self._sku
 
-    @products_sku.setter
-    def products_sku(self, products_sku: List[RequestDispatchDispatchDataProductsSku]):
-        """Sets the products_sku of this RequestDispatchDispatchData.
+    @sku.setter
+    def sku(self, sku: List[RequestSkuData]):
+        """Sets the sku of this RequestDispatchDispatchData.
 
 
-        :param products_sku: The products_sku of this RequestDispatchDispatchData.
-        :type products_sku: List[RequestDispatchDispatchDataProductsSku]
+        :param sku: The sku of this RequestDispatchDispatchData.
+        :type sku: List[RequestSkuData]
         """
 
-        self._products_sku = products_sku
+        self._sku = sku
 
     @property
     def observations(self) -> str:

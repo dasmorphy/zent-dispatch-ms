@@ -26,11 +26,6 @@ class Dispatch(Base):
         ForeignKey('public.dispatch_status.id_status', onupdate='NO ACTION', ondelete='NO ACTION'),
     )
 
-    sku_id = Column(
-        Integer,
-        ForeignKey('public.dispatch_skus.id_sku', onupdate='NO ACTION', ondelete='NO ACTION'),
-    )
-
     vehicle_type_id = Column(
         Integer,
         ForeignKey('public.vehicle_type.id_vehicle_type', onupdate='NO ACTION', ondelete='NO ACTION'),

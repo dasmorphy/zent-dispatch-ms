@@ -29,6 +29,7 @@ from swagger_server.models.entry_control_data import EntryControlData
 from swagger_server.models.reception_data import Receptiondata
 from swagger_server.models.request_dispatch_dispatch_data import RequestDispatchDispatchData
 from swagger_server.models.request_reception import RequestReception
+from swagger_server.models.request_sku_data import RequestSkuData
 from swagger_server.resources.databases.postgresql import PostgreSQLClient
 
 
@@ -45,18 +46,23 @@ class DispatchRepository:
         with self.db.session_factory() as session:
             try:
                 
-                sku_saved = self.saveSku(session, data, internal, external)
-                products = data.products_sku
-                dispatch_saved = self.saveDispatch(session, data, sku_saved.id_sku, internal, external)
+                dispatch_saved = self.saveDispatch(session, data, internal, external)
 
-                for product in products:
-                    self.saveProductSku(
-                        session,
-                        sku_saved.id_sku,
-                        product,
-                        internal,
-                        external
-                    )
+                for sku in data.sku:
+                    new_sku = {
+                        "user": data.user,
+                        "type_sku": sku.type_sku,
+                        "dispatch_id": dispatch_saved.id_dispatch
+                    }
+                    sku_saved = self.saveSku(session, new_sku, internal, external)
+                    for product in sku.products:
+                        self.saveProductSku(
+                            session,
+                            sku_saved.id_sku,
+                            product,
+                            internal,
+                            external
+                        )
 
                 # Guardar imágenes (máx 10)
                 for file in images[:10]:
@@ -169,7 +175,7 @@ class DispatchRepository:
                 session.close()
 
 
-    def saveDispatch(self, session, data: RequestDispatchDispatchData, sku_id: int, internal, external):
+    def saveDispatch(self, session, data: RequestDispatchDispatchData, internal, external):
         try:
 
             vehicle_exists = session.execute(
@@ -204,7 +210,6 @@ class DispatchRepository:
                 truck_license=data.truck_license,
                 created_by=data.user,
                 updated_by=data.user,
-                sku_id=sku_id,
                 status_id=1
             )
             
@@ -221,12 +226,13 @@ class DispatchRepository:
             raise CustomAPIException("Error al guardar el despacho en la base de datos", 500)
         
 
-    def saveSku(self, session, data: RequestDispatchDispatchData, internal, external) -> DispatchSkus:
+    def saveSku(self, session, data, internal, external) -> DispatchSkus:
         try:
             dispatch_skus = DispatchSkus(
-                created_by=data.user,
-                updated_by=data.user,
-                type_sku=data.sku_type,
+                created_by=data["user"],
+                updated_by=data["user"],
+                type_sku=data["type_sku"],
+                dispatch_id=data["dispatch_id"]
             )
             
             session.add(dispatch_skus)
@@ -401,19 +407,33 @@ class DispatchRepository:
                     .subquery()
                 )
 
+                skus_subq = (
+                    select(
+                        DispatchSkus.dispatch_id,
+                        func.json_agg(
+                            func.json_build_object(
+                                "id_sku", DispatchSkus.id_sku,
+                                "type_sku", DispatchSkus.type_sku,
+                                "products", func.coalesce(products_sku_subq.c.products_sku, '[]')
+                            )
+                        ).label("skus")
+                    )
+                    .outerjoin(
+                        products_sku_subq,
+                        products_sku_subq.c.sku_id == DispatchSkus.id_sku
+                    )
+                    .group_by(DispatchSkus.dispatch_id)
+                    .subquery()
+                )
+
                 stmt = (
                     select(
                         Dispatch,
-                        DispatchSkus,
                         DispatchStatus,
                         DestinyIntern.name.label("name_destiny"),
                         VehicleType.name.label("name_vehicle_type"),
-                        func.coalesce(products_sku_subq.c.products_sku, '[]').label("products_sku"),
+                        func.coalesce(skus_subq.c.skus, '[]').label("skus"),
                         func.coalesce(images_subq.c.images, '[]').label("images")
-                    )
-                    .join(
-                        DispatchSkus,
-                        DispatchSkus.id_sku == Dispatch.sku_id
                     )
                     .join(
                         DestinyIntern,
@@ -432,8 +452,8 @@ class DispatchRepository:
                         images_subq.c.dispatch_id == Dispatch.id_dispatch
                     )
                     .outerjoin(
-                        products_sku_subq,
-                        products_sku_subq.c.sku_id == DispatchSkus.id_sku
+                        skus_subq,
+                        skus_subq.c.dispatch_id == Dispatch.id_dispatch
                     )
                 )
 

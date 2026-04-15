@@ -576,7 +576,7 @@ class DispatchRepository:
                             reception_id=reception_data.id_reception,
                             expected_quantity=detail["expected_quantity"],
                             received_quantity=detail["received_quantity"],
-                            product_id=detail["product_id"],
+                            product_sku_id=detail["product_sku_id"],
                             observations=detail["observations"]
                         )
                         session.add(reception_detail)

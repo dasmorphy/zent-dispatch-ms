@@ -913,7 +913,7 @@ components:
           type: integer
           nullable: true
           example: 1
-        product_id:
+        product_sku_id:
           type: integer
           example: 1
         expected_quantity:

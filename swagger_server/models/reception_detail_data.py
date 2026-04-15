@@ -14,13 +14,13 @@ class ReceptionDetailData(Model):
 
     Do not edit the class manually.
     """
-    def __init__(self, reception_id: int=None, product_id: int=None, expected_quantity: int=None, received_quantity: int=None, observations: str=None):  # noqa: E501
+    def __init__(self, reception_id: int=None, product_sku_id: int=None, expected_quantity: int=None, received_quantity: int=None, observations: str=None):  # noqa: E501
         """ReceptionDetailData - a model defined in Swagger
 
         :param reception_id: The reception_id of this ReceptionDetailData.  # noqa: E501
         :type reception_id: int
-        :param product_id: The product_id of this ReceptionDetailData.  # noqa: E501
-        :type product_id: int
+        :param product_sku_id: The product_sku_id of this ReceptionDetailData.  # noqa: E501
+        :type product_sku_id: int
         :param expected_quantity: The expected_quantity of this ReceptionDetailData.  # noqa: E501
         :type expected_quantity: int
         :param received_quantity: The received_quantity of this ReceptionDetailData.  # noqa: E501
@@ -30,7 +30,7 @@ class ReceptionDetailData(Model):
         """
         self.swagger_types = {
             'reception_id': int,
-            'product_id': int,
+            'product_sku_id': int,
             'expected_quantity': int,
             'received_quantity': int,
             'observations': str
@@ -38,13 +38,13 @@ class ReceptionDetailData(Model):
 
         self.attribute_map = {
             'reception_id': 'reception_id',
-            'product_id': 'product_id',
+            'product_sku_id': 'product_sku_id',
             'expected_quantity': 'expected_quantity',
             'received_quantity': 'received_quantity',
             'observations': 'observations'
         }
         self._reception_id = reception_id
-        self._product_id = product_id
+        self._product_sku_id = product_sku_id
         self._expected_quantity = expected_quantity
         self._received_quantity = received_quantity
         self._observations = observations
@@ -82,25 +82,25 @@ class ReceptionDetailData(Model):
         self._reception_id = reception_id
 
     @property
-    def product_id(self) -> int:
-        """Gets the product_id of this ReceptionDetailData.
+    def product_sku_id(self) -> int:
+        """Gets the product_sku_id of this ReceptionDetailData.
 
 
-        :return: The product_id of this ReceptionDetailData.
+        :return: The product_sku_id of this ReceptionDetailData.
         :rtype: int
         """
-        return self._product_id
+        return self._product_sku_id
 
-    @product_id.setter
-    def product_id(self, product_id: int):
-        """Sets the product_id of this ReceptionDetailData.
+    @product_sku_id.setter
+    def product_sku_id(self, product_sku_id: int):
+        """Sets the product_sku_id of this ReceptionDetailData.
 
 
-        :param product_id: The product_id of this ReceptionDetailData.
-        :type product_id: int
+        :param product_sku_id: The product_sku_id of this ReceptionDetailData.
+        :type product_sku_id: int
         """
 
-        self._product_id = product_id
+        self._product_sku_id = product_sku_id
 
     @property
     def expected_quantity(self) -> int:

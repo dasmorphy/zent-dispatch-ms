@@ -135,3 +135,25 @@ class DispatchUseCase:
     def update_entry_access(self, data: EntryControlData, id_entry: int, images, internal_process: tuple) -> None:
         internal, external = internal_process
         self.dispatch_repository.update_entry_access(data, id_entry, images, internal, external)
+
+
+    def get_resume_graphs(self, headers, params, internal, external):
+
+        filters = {
+            "user": headers.get("user"),
+            "start_date": params.get("start_date"),
+            "end_date": params.get("end_date"),
+        }
+
+        dispatch_by_status = self.dispatch_repository.get_dispatch_count_by_status(
+            filters, internal, external
+        )
+
+        discrepancy = self.dispatch_repository.get_dispatch_count_with_discrepancy(
+            filters, internal, external
+        )
+
+        return {
+            "dispatch_by_status": dispatch_by_status,
+            "discrepancy": discrepancy["count_discrepancy"]
+        }

@@ -994,3 +994,94 @@ class DispatchRepository:
 
             finally:
                 session.close()
+
+    def get_dispatch_count_by_status(self, filtersBase, internal, external):
+        with self.db.session_factory() as session:
+            try:
+                join_condition = Dispatch.status_id == DispatchStatus.id_status
+
+                if filtersBase.get("user"):
+                    join_condition = and_(join_condition, Dispatch.created_by == filtersBase.get("user"))
+
+                if filtersBase.get("start_date"):
+                    join_condition = and_(join_condition, Dispatch.created_at >= filtersBase.get("start_date"))
+
+                if filtersBase.get("end_date"):
+                    join_condition = and_(join_condition, Dispatch.created_at <= filtersBase.get("end_date"))
+
+                stmt = (
+                    select(
+                        DispatchStatus.id_status,
+                        DispatchStatus.name,
+                        func.count(Dispatch.id_dispatch).label("count")
+                    )
+                    .outerjoin(
+                        Dispatch,
+                        join_condition  # 🔥 aquí van los filtros
+                    )
+                    .group_by(DispatchStatus.id_status, DispatchStatus.name)
+                    .order_by(DispatchStatus.id_status)
+                )
+
+                result = session.execute(stmt).all()
+
+                dispatch_count_by_status = [
+                    {
+                        "id_status": row[0],
+                        "status_name": row[1],
+                        "count": row[2]
+                    }
+                    for row in result
+                ]
+
+                return dispatch_count_by_status
+            except Exception as exception:
+                logger.error('Error: {}', str(exception), internal=internal, external=external)
+                if isinstance(exception, CustomAPIException):
+                    raise exception
+                
+                raise CustomAPIException("Error al obtener el resumen de despachos por status en la base de datos", 500)
+            
+    def get_dispatch_count_with_discrepancy(self, filtersBase, internal, external):
+        with self.db.session_factory() as session:
+            try:
+
+                # 🔥 condición de discrepancia
+                discrepancy_exists = exists().where(
+                    and_(
+                        DispatchReception.dispatch_id == Dispatch.id_dispatch,
+                        DispatchReceptionDetail.reception_id == DispatchReception.id_reception
+                    )
+                )
+
+                stmt = select(
+                    func.count(Dispatch.id_dispatch)
+                ).where(discrepancy_exists)
+
+                # 🔥 filtros normales
+                filters = []
+
+                if filtersBase.get("user"):
+                    filters.append(Dispatch.created_by == filtersBase.get("user"))
+
+                if filtersBase.get("start_date"):
+                    filters.append(Dispatch.created_at >= filtersBase.get("start_date"))
+
+                if filtersBase.get("end_date"):
+                    filters.append(Dispatch.created_at <= filtersBase.get("end_date"))
+
+                if filters:
+                    stmt = stmt.where(and_(*filters))
+
+                result = session.execute(stmt).scalar()
+
+                return {
+                    "count_discrepancy": result or 0
+                }
+
+            except Exception as exception:
+                logger.error('Error: {}', str(exception), internal=internal, external=external)
+                if isinstance(exception, CustomAPIException):
+                    raise exception
+                
+                raise CustomAPIException("Error al obtener despachos con discrepancia", 500)

@@ -508,7 +508,7 @@ class DispatchRepository:
                         product_exists = session.execute(
                             select(
                                 exists().where(
-                                    DispatchProducts.id_product == detail.product_id
+                                    DispatchProducts.id_product == detail["product_id"]
                                 )
                             )
                         ).scalar()
@@ -518,10 +518,10 @@ class DispatchRepository:
                         
                         reception_detail = DispatchReceptionDetail(
                             reception_id=reception_data.id_reception,
-                            expected_quantity=detail.expected_quantity,
-                            received_quantity=detail.received_quantity,
-                            product_id=detail.product_id,
-                            observations=detail.observations
+                            expected_quantity=detail["expected_quantity"],
+                            received_quantity=detail["received_quantity"],
+                            product_id=detail["product_id"],
+                            observations=detail["observations"]
                         )
                         session.add(reception_detail)
 

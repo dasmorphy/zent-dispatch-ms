@@ -340,7 +340,7 @@ class DispatchView(MethodView):
                 files = request.files.getlist("images")
                 self.dispatch_use_case.post_entry_control(entry_data, files, internal_process)
                 response["error_code"] = 0
-                response["message"] = "Despacho creado correctamente"
+                response["message"] = "Ingreso creado correctamente"
                 end_time = default_timer()
                 logger.info(f"Fin de la transacción, procesada en : {end_time - start_time} milisegundos",
                             internal=internal_transaction_id, external=entry_dict['external_transaction_id'])

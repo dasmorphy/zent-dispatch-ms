@@ -561,15 +561,15 @@ class DispatchRepository:
 
                 if not body.is_correct and body.reception_details:
                     for detail in body.reception_details:
-                        product_exists = session.execute(
+                        product_sku_exists = session.execute(
                             select(
                                 exists().where(
-                                    DispatchProducts.id_product == detail["product_id"]
+                                    ProductsSku.id_product_sku == detail["product_sku_id"]
                                 )
                             )
                         ).scalar()
 
-                        if not product_exists:
+                        if not product_sku_exists:
                             raise CustomAPIException("Un producto no existe", 404)
                         
                         reception_detail = DispatchReceptionDetail(

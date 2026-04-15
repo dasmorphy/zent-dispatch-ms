@@ -69,9 +69,10 @@ class DispatchUseCase:
                 "name_vehicle_type": name_vehicle_type,
                 "name_destiny": name_destiny,
                 "status": dispatch_status.name,
+                "reception": reception,
                 "images": images
             }
-            for dispatch, dispatch_status, name_destiny, name_vehicle_type, skus, images in rows
+            for dispatch, dispatch_status, name_destiny, name_vehicle_type, skus, images, reception in rows
         ]
     
     def post_reception(self, body: Receptiondata, images, internal_process: tuple) -> None:        

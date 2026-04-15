@@ -4,7 +4,7 @@ import os
 from uuid import uuid4
 
 from loguru import logger
-from sqlalchemy import JSON, and_, exists, func, select
+from sqlalchemy import JSON, and_, exists, func, select, case
 from werkzeug.utils import secure_filename
 
 from swagger_server.exception.custom_error_exception import CustomAPIException
@@ -31,7 +31,6 @@ from swagger_server.models.request_dispatch_dispatch_data import RequestDispatch
 from swagger_server.models.request_reception import RequestReception
 from swagger_server.models.request_sku_data import RequestSkuData
 from swagger_server.resources.databases.postgresql import PostgreSQLClient
-
 
 class DispatchRepository:
     
@@ -394,6 +393,7 @@ class DispatchRepository:
                         func.json_agg(
                             func.json_build_object(
                                 "id_product", ProductsSku.product_id,
+                                "id_product_sku", ProductsSku.id_product_sku,
                                 "name", DispatchProducts.name,
                                 "quantity", ProductsSku.quantity
                             )
@@ -426,6 +426,45 @@ class DispatchRepository:
                     .subquery()
                 )
 
+                reception_details_subq = (
+                    select(
+                        DispatchReceptionDetail.reception_id,
+                        func.json_agg(
+                            func.json_build_object(
+                                "reception_id", DispatchReceptionDetail.reception_id,
+                                "expected_quantity", DispatchReceptionDetail.expected_quantity,
+                                "received_quantity", DispatchReceptionDetail.received_quantity,
+                                "observations", DispatchReceptionDetail.observations,
+                                "product_sku_id", DispatchReceptionDetail.product_sku_id,
+                                "name_product_sku", DispatchProducts.name,
+                                "created_at", DispatchReceptionDetail.created_at,
+                            )
+                        ).label("details")
+                    )
+                    .outerjoin(
+                        DispatchProducts,
+                        DispatchProducts.id_product == DispatchReceptionDetail.product_sku_id
+                    )
+                    .group_by(DispatchReceptionDetail.reception_id)
+                    .subquery()
+                )
+
+                reception_subq = (
+                    select(
+                        DispatchReception.dispatch_id,
+                        DispatchReception.id_reception,
+                        DispatchReception.is_correct,
+                        DispatchReception.observations,
+                        DispatchReception.created_at,
+                        func.coalesce(reception_details_subq.c.details, '[]').label("reception_detail")
+                    )
+                    .outerjoin(
+                        reception_details_subq,
+                        reception_details_subq.c.reception_id == DispatchReception.id_reception
+                    )
+                    .subquery()
+                )
+
                 stmt = (
                     select(
                         Dispatch,
@@ -433,7 +472,20 @@ class DispatchRepository:
                         DestinyIntern.name.label("name_destiny"),
                         VehicleType.name.label("name_vehicle_type"),
                         func.coalesce(skus_subq.c.skus, '[]').label("skus"),
-                        func.coalesce(images_subq.c.images, '[]').label("images")
+                        func.coalesce(images_subq.c.images, '[]').label("images"),
+                        case(
+                            (
+                                reception_subq.c.id_reception.isnot(None),
+                                func.json_build_object(
+                                    "id_reception", reception_subq.c.id_reception,
+                                    "is_correct", reception_subq.c.is_correct,
+                                    "observations", reception_subq.c.observations,
+                                    "created_at", reception_subq.c.created_at,
+                                    "reception_detail", reception_subq.c.reception_detail
+                                )
+                            ),
+                            else_=None
+                        ).label("reception")
                     )
                     .join(
                         DestinyIntern,
@@ -454,6 +506,10 @@ class DispatchRepository:
                     .outerjoin(
                         skus_subq,
                         skus_subq.c.dispatch_id == Dispatch.id_dispatch
+                    )
+                    .outerjoin(
+                        reception_subq,
+                        reception_subq.c.dispatch_id == Dispatch.id_dispatch
                     )
                 )
 

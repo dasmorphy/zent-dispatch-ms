@@ -27,9 +27,9 @@ class DispatchReceptionDetail(Base):
         ForeignKey('public.dispatch_reception.id_reception', onupdate='NO ACTION', ondelete='NO ACTION'),
     )
 
-    product_id = Column(
+    product_sku_id = Column(
         Integer,
-        ForeignKey('public.dispatch_products.id_product', onupdate='NO ACTION', ondelete='NO ACTION'),
+        ForeignKey('public.products_sku.id_product_sku', onupdate='NO ACTION', ondelete='NO ACTION'),
     )
 
     expected_quantity = Column(Integer)

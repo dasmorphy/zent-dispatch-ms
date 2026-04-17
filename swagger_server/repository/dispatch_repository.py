@@ -4,7 +4,7 @@ import os
 from uuid import uuid4
 
 from loguru import logger
-from sqlalchemy import JSON, and_, exists, func, select, case
+from sqlalchemy import JSON, and_, exists, func, select, case, true
 from werkzeug.utils import secure_filename
 
 from swagger_server.exception.custom_error_exception import CustomAPIException
@@ -1085,3 +1085,44 @@ class DispatchRepository:
                     raise exception
                 
                 raise CustomAPIException("Error al obtener despachos con discrepancia", 500)
+            
+
+    def get_count_entry_status(self, filtersBase, internal, external):
+        with self.db.session_factory() as session:
+            try:
+                filters = true()
+
+                if filtersBase.get("user"):
+                    filters = and_(filters, BiomarAccessControl.created_by == filtersBase.get("user"))
+
+                if filtersBase.get("start_date"):
+                    filters = and_(filters, BiomarAccessControl.created_at >= filtersBase.get("start_date"))
+
+                if filtersBase.get("end_date"):
+                    filters = and_(filters, BiomarAccessControl.created_at <= filtersBase.get("end_date"))
+
+                stmt = (
+                    select(
+                        BiomarAccessControl.status,
+                        func.count().label("count")
+                    )
+                    .where(filters)
+                    .group_by(BiomarAccessControl.status)
+                )
+
+                result = session.execute(stmt).all()
+
+                return [
+                    {
+                        "status_name": row.status,
+                        "count": row.count
+                    }
+                    for row in result
+                ]
+
+            except Exception as exception:
+                logger.error('Error: {}', str(exception), internal=internal, external=external)
+                if isinstance(exception, CustomAPIException):
+                    raise exception
+                
+                raise CustomAPIException("Error al obtener el conteo de ingresos en la base de datos", 500)

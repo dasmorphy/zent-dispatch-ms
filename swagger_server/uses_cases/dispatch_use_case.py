@@ -153,7 +153,17 @@ class DispatchUseCase:
             filters, internal, external
         )
 
+        entry_by_status = self.dispatch_repository.get_count_entry_status(
+            filters, internal, external
+        )
+
+        destiny_count = self.dispatch_repository.get_count_entry_status(
+            filters, internal, external
+        )
+
+
         return {
             "dispatch_by_status": dispatch_by_status,
-            "discrepancy": discrepancy["count_discrepancy"]
+            "discrepancy": discrepancy["count_discrepancy"],
+            "entry_biomar": entry_by_status
         }

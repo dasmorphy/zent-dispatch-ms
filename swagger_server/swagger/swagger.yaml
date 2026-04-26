@@ -14,6 +14,13 @@ paths:
       description: Devuelve todos los estados de la base
       operationId: get_status_dispatch
       parameters:
+      - name: token
+        in: header
+        required: true
+        schema:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        description: Token para validación
       - name: externalTransactionId
         in: header
         required: true

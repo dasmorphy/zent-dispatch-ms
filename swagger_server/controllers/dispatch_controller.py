@@ -135,6 +135,10 @@ class DispatchView(MethodView):
         status_code = 500
         try:
             if connexion.request.headers:
+                token = request.headers.get('token')
+                if not token:
+                    raise CustomAPIException('Token requerido en headers', 400)
+
                 start_time = default_timer()
                 internal_transaction_id = str(generate_internal_transaction_id())
                 external_transaction_id = request.headers.get('externalTransactionId')

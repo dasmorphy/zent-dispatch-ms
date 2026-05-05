@@ -1,3 +1,5 @@
+import datetime
+
 from swagger_server.models.db import Base
 from sqlalchemy import (
     Column,
@@ -57,4 +59,13 @@ class BiomarAccessControl(Base):
     )
 
     def to_dict(self):
-        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+        result = {}
+        for c in self.__table__.columns:
+            value = getattr(self, c.name)
+
+            if isinstance(value, datetime):
+                value = value.isoformat()
+
+            result[c.name] = value
+
+        return result

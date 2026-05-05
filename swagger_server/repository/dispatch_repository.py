@@ -692,6 +692,8 @@ class DispatchRepository:
                         logger.error('Error: {}', str(e), internal=internal, external=external)
                         raise CustomAPIException("Error al subir las imágenes", 500)
                 
+                session.commit()
+                
                 access_control_dict = access_control.to_dict()
 
                 self.redis_client.client.publish(
@@ -702,7 +704,6 @@ class DispatchRepository:
                     })
                 )
 
-                session.commit()
             
             except Exception as exception:
                 session.rollback()

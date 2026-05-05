@@ -80,6 +80,16 @@ class DispatchRepository:
                 # self.saveImages(session, images, internal, external)
                 session.commit()
 
+                dispatch_saved = dispatch_saved.to_dict()
+
+                self.redis_client.client.publish(
+                    "dispatch_channel",
+                    json.dumps({
+                        "type": "dispatch_saved",
+                        "dispatch": dispatch_saved
+                    })
+                )
+
             except OSError as e:
                 if e.errno == 36:
                     raise CustomAPIException("Nombre de archivo demasiado largo", 400)
@@ -693,8 +703,9 @@ class DispatchRepository:
                         raise CustomAPIException("Error al subir las imágenes", 500)
                 
                 session.commit()
-                
+
                 access_control_dict = access_control.to_dict()
+                access_control_dict["area_name"] = area_exists.name
 
                 self.redis_client.client.publish(
                     "entry_channel",

@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 
 from swagger_server.models.db import Base
 from sqlalchemy import (

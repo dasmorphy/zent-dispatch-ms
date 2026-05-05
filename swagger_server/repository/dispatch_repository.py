@@ -82,6 +82,9 @@ class DispatchRepository:
 
                 dispatch_saved = dispatch_saved.to_dict()
 
+                if status_exist := session.get(DispatchStatus, dispatch_saved["status_id"]):
+                    dispatch_saved["status"] = status_exist.name
+
                 self.redis_client.client.publish(
                     "dispatch_channel",
                     json.dumps({

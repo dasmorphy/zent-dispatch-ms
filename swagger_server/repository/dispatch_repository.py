@@ -31,12 +31,13 @@ from swagger_server.models.request_dispatch_dispatch_data import RequestDispatch
 from swagger_server.models.request_reception import RequestReception
 from swagger_server.models.request_sku_data import RequestSkuData
 from swagger_server.resources.databases.postgresql import PostgreSQLClient
+from swagger_server.resources.databases.redis import RedisClient
 
 class DispatchRepository:
     
     def __init__(self):
         self.db = PostgreSQLClient("POSTGRESQL")
-        # self.redis_client = RedisClient()
+        self.redis_client = RedisClient()
 
     
     def post_dispatch(self, data: RequestDispatchDispatchData, images, internal, external):
@@ -690,6 +691,16 @@ class DispatchRepository:
                         
                         logger.error('Error: {}', str(e), internal=internal, external=external)
                         raise CustomAPIException("Error al subir las imágenes", 500)
+                
+                access_control_dict = access_control.to_dict()
+
+                self.redis_client.client.publish(
+                    "entry_channel",
+                    json.dumps({
+                        "type": "entry_saved",
+                        "entry": access_control_dict
+                    })
+                )
 
                 session.commit()
             

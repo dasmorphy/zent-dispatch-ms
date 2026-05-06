@@ -416,6 +416,12 @@ paths:
         schema:
           type: string
           example: "dmales"
+      - name: areas
+        in: header
+        required: false
+        schema:
+          type: string
+          example: "1,2,3"
       - name: start_date
         in: query
         required: false

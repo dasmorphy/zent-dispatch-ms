@@ -939,6 +939,9 @@ class DispatchRepository:
                 if filtersBase.get("user"):
                     filters.append(BiomarAccessControl.created_by == filtersBase.get("user"))
 
+                if filtersBase.get("areas"):
+                    filters.append(BiomarAccessControl.area_visit_id.in_(filtersBase.get("areas")))
+
                 if filtersBase.get("start_date"):
                     filters.append(BiomarAccessControl.created_at >= filtersBase.get("start_date"))
 

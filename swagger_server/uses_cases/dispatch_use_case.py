@@ -103,10 +103,12 @@ class DispatchUseCase:
         return self.dispatch_repository.get_staff_charge(internal, external)
 
     def get_entry_access(self, headers, params, internal, external):
+        areas = headers.get("areas")
         filters = {
             "user": headers.get("user"),
             "start_date": params.get("start_date"),
             "end_date": params.get("end_date"),
+            "areas": [int(x) for x in areas.split(",")] if areas else []
         }
 
         rows = self.dispatch_repository.get_entry_access(filters, internal, external)

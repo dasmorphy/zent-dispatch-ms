@@ -402,6 +402,64 @@ paths:
               schema:
                 $ref: "#/components/schemas/ResponseError"
       x-openapi-router-controller: swagger_server.controllers.dispatch_controller.DispatchView
+  /history-dispatch-status:
+    get:
+      tags:
+      - Dispatch
+      summary: Obtiene todos los ingresos de biomar
+      description: Devuelve todos los ingresos de biomar de la base
+      operationId: get_history_dispatch
+      parameters:
+      - name: id_dispatch
+        in: query
+        required: false
+        schema:
+          type: string
+          example: 5
+      - name: externalTransactionId
+        in: header
+        required: true
+        schema:
+          type: string
+          example: "fcea920f7412b5da7be0cf42b8c93759"
+      - name: channel
+        in: header
+        required: true
+        schema:
+          type: string
+          example: "ZENTINEL"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResponseError"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResponseError"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResponseError"
+        "503":
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResponseError"
+      x-openapi-router-controller: swagger_server.controllers.dispatch_controller.DispatchView
   /entry-access:
     get:
       tags:

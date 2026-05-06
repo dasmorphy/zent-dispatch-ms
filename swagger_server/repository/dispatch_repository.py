@@ -5,6 +5,7 @@ from uuid import uuid4
 
 from loguru import logger
 from sqlalchemy import JSON, and_, exists, func, select, case, true
+from sqlalchemy.orm import aliased
 from werkzeug.utils import secure_filename
 
 from swagger_server.exception.custom_error_exception import CustomAPIException
@@ -20,6 +21,7 @@ from swagger_server.models.db.dispatch_products import DispatchProducts
 from swagger_server.models.db.dispatch_reception import DispatchReception
 from swagger_server.models.db.dispatch_reception_detail import DispatchReceptionDetail
 from swagger_server.models.db.dispatch_skus import DispatchSkus
+from swagger_server.models.db.history_dispatch_status import HistoryDispatchStatus
 from swagger_server.models.db.products_sku import ProductsSku
 from swagger_server.models.db.vehicle_type import VehicleType
 from swagger_server.models.db.area_visit import AreaVisit
@@ -869,6 +871,48 @@ class DispatchRepository:
                     raise exception
                 
                 raise CustomAPIException("Error al obtener el personal a cargo de despacho en la base de datos", 500)
+            
+
+    def get_history_dispatch(self, id_dispatch,internal, external):
+        with self.db.session_factory() as session:
+            try:
+                StatusCurrent = aliased(DispatchStatus)
+                StatusPrevious = aliased(DispatchStatus)
+
+                history_dispatch = session.execute(
+                    select(
+                        HistoryDispatchStatus,
+                        StatusCurrent.name.label("status_name"),
+                        StatusPrevious.name.label("previous_status_name")
+                    )
+                    .join(StatusCurrent, StatusCurrent.id_status == HistoryDispatchStatus.status_id)
+                    .join(StatusPrevious, StatusPrevious.id_status == HistoryDispatchStatus.previous_status_id)
+                    .where(HistoryDispatchStatus.dispatch_id == id_dispatch)
+                    .order_by(HistoryDispatchStatus.created_at.desc())
+                ).all()
+
+                history = [
+                    {
+                        "id_history": h.id_history_status,
+                        "dispatch_id": h.dispatch_id,
+                        "previous_status_id": h.previous_status_id,
+                        "status_id": h.status_id,
+                        "created_at": h.created_at,
+                        "created_by": h.created_by,
+                        "status_name": status_name,
+                        "previous_status_name": prev_status_name
+                    }
+                    for h, status_name, prev_status_name in history_dispatch
+                ]
+
+                return history
+
+            except Exception as exception:
+                logger.error('Error: {}', str(exception), internal=internal, external=external)
+                if isinstance(exception, CustomAPIException):
+                    raise exception
+                
+                raise CustomAPIException("Error al obtener el historial en la base de datos", 500)
             
     def get_entry_access(self, filtersBase, internal, external):
         with self.db.session_factory() as session:

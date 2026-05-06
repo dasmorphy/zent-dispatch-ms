@@ -101,6 +101,10 @@ class DispatchUseCase:
     
     def get_staff_charge(self, internal, external):
         return self.dispatch_repository.get_staff_charge(internal, external)
+    
+
+    def get_history_dispatch(self, params, internal, external):
+        return self.dispatch_repository.get_history_dispatch(params.get("id_dispatch"), internal, external)
 
     def get_entry_access(self, headers, params, internal, external):
         areas = headers.get("areas")

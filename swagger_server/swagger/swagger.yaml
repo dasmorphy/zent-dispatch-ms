@@ -569,6 +569,12 @@ paths:
       description: Devuelve todos los despachos de la base
       operationId: get_dispatch
       parameters:
+      - name: destiny
+        in: header
+        required: false
+        schema:
+          type: string
+          example: "1,2,3"
       - name: user
         in: header
         required: false

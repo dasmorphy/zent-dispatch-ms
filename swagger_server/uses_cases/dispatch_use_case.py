@@ -45,7 +45,9 @@ class DispatchUseCase:
         return self.dispatch_repository.get_status_dispatch(internal, external)
     
     def get_all_dispatch(self, headers, params, internal, external):
+        destiny = headers.get("destiny")
         filters = {
+            "destiny": [int(x) for x in destiny.split(",")] if destiny else [],
             "user": headers.get("user"),
             "start_date": params.get("start_date"),
             "end_date": params.get("end_date"),
@@ -138,8 +140,9 @@ class DispatchUseCase:
 
 
     def get_resume_graphs(self, headers, params, internal, external):
-
+        destiny = headers.get("destiny")
         filters = {
+            "destiny": [int(x) for x in destiny.split(",")] if destiny else [],
             "user": headers.get("user"),
             "start_date": params.get("start_date"),
             "end_date": params.get("end_date"),

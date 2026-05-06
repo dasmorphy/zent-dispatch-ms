@@ -532,6 +532,9 @@ class DispatchRepository:
                 if filtersBase.get("user"):
                     filters.append(Dispatch.created_by == filtersBase.get("user"))
 
+                if filtersBase.get("destiny"):
+                    filters.append(Dispatch.destiny_id.in_(filtersBase.get("destiny")))
+
                 if filtersBase.get("start_date"):
                     filters.append(Dispatch.created_at >= filtersBase.get("start_date"))
 
@@ -1089,6 +1092,10 @@ class DispatchRepository:
 
                 if filtersBase.get("user"):
                     filters.append(Dispatch.created_by == filtersBase.get("user"))
+
+
+                if filtersBase.get("destiny"):
+                    filters.append(Dispatch.destiny_id.in_(filtersBase.get("destiny")))
 
                 if filtersBase.get("start_date"):
                     filters.append(Dispatch.created_at >= filtersBase.get("start_date"))

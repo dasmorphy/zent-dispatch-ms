@@ -458,8 +458,12 @@ class DispatchRepository:
                         ).label("details")
                     )
                     .outerjoin(
+                        ProductsSku,
+                        ProductsSku.id_product_sku == DispatchReceptionDetail.product_sku_id
+                    )
+                    .outerjoin(
                         DispatchProducts,
-                        DispatchProducts.id_product == DispatchReceptionDetail.product_sku_id
+                        DispatchProducts.id_product == ProductsSku.product_id
                     )
                     .group_by(DispatchReceptionDetail.reception_id)
                     .subquery()

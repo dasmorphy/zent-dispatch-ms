@@ -69,7 +69,7 @@ class DispatchUseCase:
                 "order_number": dispatch.order_number,
                 "skus": skus,
                 "name_vehicle_type": name_vehicle_type,
-                "name_destiny": name_destiny,
+                "name_destiny": name_destiny or dispatch.destiny_product,
                 "status": dispatch_status.name,
                 "reception": reception,
                 "images": images

@@ -44,6 +44,8 @@ class Dispatch(Base):
     truck_license = Column(Text)
     weight = Column(Integer)
 
+    type_process = Column(Text)
+    destiny_product = Column(Text)
     
     created_at = Column(
         DateTime,

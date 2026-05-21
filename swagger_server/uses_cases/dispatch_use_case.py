@@ -166,13 +166,18 @@ class DispatchUseCase:
             filters, internal, external
         )
 
-        destiny_count = self.dispatch_repository.get_count_entry_status(
+        count_type_access = self.dispatch_repository.get_count_type_access(
             filters, internal, external
         )
 
+        top_materials = self.dispatch_repository.get_top_materials_access(filters, internal, external)
 
         return {
             "dispatch_by_status": dispatch_by_status,
             "discrepancy": discrepancy["count_discrepancy"],
-            "entry_biomar": entry_by_status
+            "entry_biomar": {
+                "entry_by_status": entry_by_status,
+                "count_type_access": count_type_access,
+                "top_materials": top_materials
+            }
         }

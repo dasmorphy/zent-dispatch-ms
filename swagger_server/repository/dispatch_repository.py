@@ -4,7 +4,7 @@ import os
 from uuid import uuid4
 
 from loguru import logger
-from sqlalchemy import JSON, and_, exists, func, select, case, true
+from sqlalchemy import JSON, and_, desc, exists, func, select, case, true
 from sqlalchemy.orm import aliased
 from werkzeug.utils import secure_filename
 
@@ -1197,9 +1197,152 @@ class DispatchRepository:
 
                 result = session.execute(stmt).all()
 
-                return [
+                data = [
                     {
                         "status_name": row.status,
+                        "count": row.count
+                    }
+                    for row in result
+                ]
+
+                # Calcular total
+                total = sum(item["count"] for item in data)
+
+                # Agregar fila Total
+                data.append({
+                    "status_name": "Total",
+                    "count": total
+                })
+
+                return data
+
+            except Exception as exception:
+                logger.error('Error: {}', str(exception), internal=internal, external=external)
+                if isinstance(exception, CustomAPIException):
+                    raise exception
+                
+                raise CustomAPIException("Error al obtener el conteo de ingresos en la base de datos", 500)
+
+
+    def get_count_type_access(self, filtersBase, internal, external):
+        with self.db.session_factory() as session:
+            try:
+                filters = true()
+
+                if filtersBase.get("user"):
+                    filters = and_(
+                        filters,
+                        BiomarAccessControl.created_by == filtersBase.get("user")
+                    )
+
+                if filtersBase.get("start_date"):
+                    filters = and_(
+                        filters,
+                        BiomarAccessControl.created_at >= filtersBase.get("start_date")
+                    )
+
+                if filtersBase.get("end_date"):
+                    filters = and_(
+                        filters,
+                        BiomarAccessControl.created_at <= filtersBase.get("end_date")
+                    )
+
+                stmt = (
+                    select(
+                        BiomarAccessControl.type_access,
+                        func.count().label("count")
+                    )
+                    .where(filters)
+                    .group_by(BiomarAccessControl.type_access)
+                )
+
+                result = session.execute(stmt).all()
+
+                data = [
+                    {
+                        "type_access": row.type_access,
+                        "count": row.count
+                    }
+                    for row in result
+                ]
+
+                # Total general
+                total = sum(item["count"] for item in data)
+
+                # Agregar porcentaje
+                for item in data:
+                    percentage = (
+                        (item["count"] / total) * 100
+                        if total > 0 else 0
+                    )
+
+                    item["percentage"] = f"{round(percentage)}%"
+
+                return data
+
+            except Exception as exception:
+                logger.error('Error: {}', str(exception), internal=internal, external=external)
+
+                if isinstance(exception, CustomAPIException):
+                    raise exception
+
+                raise CustomAPIException("Error al obtener el conteo de ingresos en la base de datos", 500)
+            
+    def get_top_materials_access(self, filtersBase, internal, external):
+        with self.db.session_factory() as session:
+            try:
+                filters = true()
+
+                if filtersBase.get("user"):
+                    filters = and_(
+                        filters,
+                        BiomarAccessControl.created_by == filtersBase.get("user")
+                    )
+
+                if filtersBase.get("start_date"):
+                    filters = and_(
+                        filters,
+                        BiomarAccessControl.created_at >= filtersBase.get("start_date")
+                    )
+
+                if filtersBase.get("end_date"):
+                    filters = and_(
+                        filters,
+                        BiomarAccessControl.created_at <= filtersBase.get("end_date")
+                    )
+
+                stmt = (
+                    select(
+                        BiomarMaterialsAccess.name.label("material_name"),
+                        func.count(
+                            AcessControlMaterials.id_material_control
+                        ).label("count")
+                    )
+                    .select_from(AcessControlMaterials)
+                    .join(
+                        BiomarAccessControl,
+                        AcessControlMaterials.access_control_id
+                        == BiomarAccessControl.id_access_control
+                    )
+                    .join(
+                        BiomarMaterialsAccess,
+                        AcessControlMaterials.material_id
+                        == BiomarMaterialsAccess.id_material
+                    )
+                    .where(filters)
+                    .group_by(BiomarMaterialsAccess.name)
+                    .order_by(
+                        desc(func.count(
+                            AcessControlMaterials.id_material_control
+                        ))
+                    )
+                )
+
+                result = session.execute(stmt).all()
+
+                return [
+                    {
+                        "material_name": row.material_name,
                         "count": row.count
                     }
                     for row in result
@@ -1209,5 +1352,5 @@ class DispatchRepository:
                 logger.error('Error: {}', str(exception), internal=internal, external=external)
                 if isinstance(exception, CustomAPIException):
                     raise exception
-                
-                raise CustomAPIException("Error al obtener el conteo de ingresos en la base de datos", 500)
+
+                raise CustomAPIException("Error al obtener el ranking de materiales", 500)

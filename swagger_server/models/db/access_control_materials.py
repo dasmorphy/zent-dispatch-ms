@@ -34,6 +34,7 @@ class AcessControlMaterials(Base):
 
 
     quantity = Column(Integer)
+    other_material = Column(Text)
 
     created_at = Column(
         DateTime,

@@ -15,7 +15,7 @@ class EntryControlData(Model):
 
     Do not edit the class manually.
     """
-    def __init__(self, dni: str=None, names_visit: str=None, reason_visit: str=None, area_visit: int=None, person_charge: int=None, user: str=None, material_entry: List[MaterialAccessData]=None, observations: str=None, images: List[str]=None):  # noqa: E501
+    def __init__(self, dni: str=None, names_visit: str=None, reason_visit: str=None, area_visit: int=None, person_charge: int=None, type_access: str=None, user: str=None, material_entry: List[MaterialAccessData]=None, observations: str=None, images: List[str]=None):  # noqa: E501
         """EntryControlData - a model defined in Swagger
 
         :param dni: The dni of this EntryControlData.  # noqa: E501
@@ -28,6 +28,8 @@ class EntryControlData(Model):
         :type area_visit: int
         :param person_charge: The person_charge of this EntryControlData.  # noqa: E501
         :type person_charge: int
+        :param type_access: The type_access of this EntryControlData.  # noqa: E501
+        :type type_access: str
         :param user: The user of this EntryControlData.  # noqa: E501
         :type user: str
         :param material_entry: The material_entry of this EntryControlData.  # noqa: E501
@@ -43,6 +45,7 @@ class EntryControlData(Model):
             'reason_visit': str,
             'area_visit': int,
             'person_charge': int,
+            'type_access': str,
             'user': str,
             'material_entry': List[MaterialAccessData],
             'observations': str,
@@ -55,6 +58,7 @@ class EntryControlData(Model):
             'reason_visit': 'reason_visit',
             'area_visit': 'area_visit',
             'person_charge': 'person_charge',
+            'type_access': 'type_access',
             'user': 'user',
             'material_entry': 'material_entry',
             'observations': 'observations',
@@ -65,6 +69,7 @@ class EntryControlData(Model):
         self._reason_visit = reason_visit
         self._area_visit = area_visit
         self._person_charge = person_charge
+        self._type_access = type_access
         self._user = user
         self._material_entry = material_entry
         self._observations = observations
@@ -185,6 +190,27 @@ class EntryControlData(Model):
         """
 
         self._person_charge = person_charge
+
+    @property
+    def type_access(self) -> str:
+        """Gets the type_access of this EntryControlData.
+
+
+        :return: The type_access of this EntryControlData.
+        :rtype: str
+        """
+        return self._type_access
+
+    @type_access.setter
+    def type_access(self, type_access: str):
+        """Sets the type_access of this EntryControlData.
+
+
+        :param type_access: The type_access of this EntryControlData.
+        :type type_access: str
+        """
+
+        self._type_access = type_access
 
     @property
     def user(self) -> str:

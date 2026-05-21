@@ -47,6 +47,8 @@ class BiomarAccessControl(Base):
     created_by = Column(Text)
     updated_by = Column(Text)
     
+    type_access = Column(Text)
+    
     created_at = Column(
         DateTime,
         server_default=func.now()

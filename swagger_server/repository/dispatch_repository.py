@@ -680,6 +680,7 @@ class DispatchRepository:
                     observations_entry=body.observations,
                     created_by=body.user,
                     updated_by=body.user,
+                    type_access=body.type_access,
                     status="Pendiente Salida"
                 )
                 

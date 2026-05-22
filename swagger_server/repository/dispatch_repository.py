@@ -1276,7 +1276,7 @@ class DispatchRepository:
                         if total > 0 else 0
                     )
 
-                    item["percentage"] = f"{round(percentage)}%"
+                    item["percentage"] = round(percentage)
 
                 return data
 

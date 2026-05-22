@@ -1222,6 +1222,61 @@ class DispatchRepository:
                     raise exception
                 
                 raise CustomAPIException("Error al obtener el conteo de ingresos en la base de datos", 500)
+            
+
+    def get_count_destiny(self, filtersBase, internal, external):
+        with self.db.session_factory() as session:
+            try:
+                filters = true()
+
+                if filtersBase.get("user"):
+                    filters = and_(filters, BiomarAccessControl.created_by == filtersBase.get("user"))
+
+                if filtersBase.get("start_date"):
+                    filters = and_(filters, BiomarAccessControl.created_at >= filtersBase.get("start_date"))
+
+                if filtersBase.get("end_date"):
+                    filters = and_(filters, BiomarAccessControl.created_at <= filtersBase.get("end_date"))
+
+                stmt = (
+                    select(
+                        DestinyIntern.name.label("name_destiny"),
+                        func.count().label("count")
+                    )
+                    .select_from(Dispatch)
+                    .outerjoin(
+                        DestinyIntern,
+                        DestinyIntern.id_destiny == Dispatch.destiny_id
+                    )
+                    .join(
+                        DispatchReception,
+                        DispatchReception.dispatch_id == Dispatch.id_dispatch
+                    )
+                    .where(filters)
+                    .group_by(
+                        DestinyIntern.name
+                    )
+                    .order_by(desc(func.count()))
+                )
+
+                result = session.execute(stmt).all()
+
+                data = [
+                    {
+                        "name_destiny": row.name_destiny,
+                        "count": row.count
+                    }
+                    for row in result
+                ]
+
+                return data
+
+            except Exception as exception:
+                logger.error('Error: {}', str(exception), internal=internal, external=external)
+                if isinstance(exception, CustomAPIException):
+                    raise exception
+                
+                raise CustomAPIException("Error al obtener el conteo de ingresos en la base de datos", 500)
 
 
     def get_count_type_access(self, filtersBase, internal, external):

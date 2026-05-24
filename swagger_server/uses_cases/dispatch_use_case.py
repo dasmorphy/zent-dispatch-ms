@@ -49,6 +49,7 @@ class DispatchUseCase:
         filters = {
             "destiny": [int(x) for x in destiny.split(",")] if destiny else [],
             "user": headers.get("user"),
+            "type_process": headers.get("type-process"),
             "start_date": params.get("start_date"),
             "end_date": params.get("end_date"),
         }
@@ -147,7 +148,10 @@ class DispatchUseCase:
 
     def get_resume_graphs(self, headers, params, internal, external):
         destiny = headers.get("destiny")
+        product_term = []
+
         filters = {
+            "type_process": headers.get("type-process"),
             "destiny": [int(x) for x in destiny.split(",")] if destiny else [],
             "user": headers.get("user"),
             "start_date": params.get("start_date"),
@@ -162,7 +166,7 @@ class DispatchUseCase:
             filters, internal, external
         )
 
-        discrepancy = self.dispatch_repository.get_dispatch_count_with_discrepancy(
+        discrepancy = self.dispatch_repository.get_dispatch_count_discrepancy(
             filters, internal, external
         )
 
@@ -174,12 +178,24 @@ class DispatchUseCase:
             filters, internal, external
         )
 
+        discrepancy_last_7_days = self.dispatch_repository.get_dispatch_discrepancy_last_7_days(
+            filters, internal, external
+        )
+
         top_materials = self.dispatch_repository.get_top_materials_access(filters, internal, external)
 
+
+        if filters.get("type_process") == "product_term":
+            product_term = self.dispatch_repository.get_product_count_client(filters, internal, external)
+
+
         return {
+            "product_term": product_term,
+            "discrepancy_7_days": discrepancy_last_7_days,
             "dispatch_by_status": dispatch_by_status,
             "destiny_count": destiny_count,
             "discrepancy": discrepancy["count_discrepancy"],
+            "without_discrepancy": discrepancy["count_without_discrepancy"],
             "entry_biomar": {
                 "entry_by_status": entry_by_status,
                 "count_type_access": count_type_access,

@@ -1,10 +1,11 @@
+from datetime import datetime, timedelta
 import getpass
 import json
 import os
 from uuid import uuid4
 
 from loguru import logger
-from sqlalchemy import JSON, and_, desc, exists, func, select, case, true
+from sqlalchemy import JSON, Date, and_, cast, desc, exists, func, select, case, true
 from sqlalchemy.orm import aliased
 from werkzeug.utils import secure_filename
 
@@ -546,6 +547,9 @@ class DispatchRepository:
 
                 if filtersBase.get("end_date"):
                     filters.append(Dispatch.created_at <= filtersBase.get("end_date"))
+
+                if filtersBase.get("type_process"):
+                    filters.append(Dispatch.type_process == filtersBase.get("type_process"))
 
                 if filters:
                     stmt = stmt.where(and_(*filters))
@@ -1090,6 +1094,9 @@ class DispatchRepository:
                 if filtersBase.get("end_date"):
                     join_condition = and_(join_condition, Dispatch.created_at <= filtersBase.get("end_date"))
 
+                if filtersBase.get("type_process"):
+                    join_condition = and_(join_condition, Dispatch.type_process == filtersBase.get("type_process"))
+
                 stmt = (
                     select(
                         DispatchStatus.id_status,
@@ -1123,11 +1130,11 @@ class DispatchRepository:
                 
                 raise CustomAPIException("Error al obtener el resumen de despachos por status en la base de datos", 500)
             
-    def get_dispatch_count_with_discrepancy(self, filtersBase, internal, external):
+    def get_dispatch_count_discrepancy(self, filtersBase, internal, external):
         with self.db.session_factory() as session:
             try:
 
-                # 🔥 condición de discrepancia
+                # CON DISCREPANCIA
                 discrepancy_exists = exists().where(
                     and_(
                         DispatchReception.dispatch_id == Dispatch.id_dispatch,
@@ -1135,19 +1142,46 @@ class DispatchRepository:
                     )
                 )
 
-                stmt = select(
-                    func.count(Dispatch.id_dispatch)
-                ).where(discrepancy_exists)
+                # TIENE RECEPCIÓN
+                reception_exists = exists().where(
+                    DispatchReception.dispatch_id == Dispatch.id_dispatch
+                )
 
-                # 🔥 filtros normales
+                stmt = select(
+
+                    # CON DISCREPANCIA
+                    func.sum(
+                        case(
+                            (discrepancy_exists, 1),
+                            else_=0
+                        )
+                    ).label("count_discrepancy"),
+
+                    # SIN DISCREPANCIA
+                    func.sum(
+                        case(
+                            (
+                                and_(
+                                    reception_exists,
+                                    ~discrepancy_exists
+                                ),
+                                1
+                            ),
+                            else_=0
+                        )
+                    ).label("count_without_discrepancy")
+                )
+
                 filters = []
 
                 if filtersBase.get("user"):
                     filters.append(Dispatch.created_by == filtersBase.get("user"))
 
+                if filtersBase.get("type_process"):
+                    filters.append(Dispatch.type_process == filtersBase.get("type_process"))
 
                 if filtersBase.get("destiny"):
-                    filters.append(Dispatch.destiny_id.in_(filtersBase.get("destiny")))
+                    filters.append( Dispatch.destiny_id.in_(filtersBase.get("destiny")))
 
                 if filtersBase.get("start_date"):
                     filters.append(Dispatch.created_at >= filtersBase.get("start_date"))
@@ -1158,17 +1192,20 @@ class DispatchRepository:
                 if filters:
                     stmt = stmt.where(and_(*filters))
 
-                result = session.execute(stmt).scalar()
+                result = session.execute(stmt).first()
 
                 return {
-                    "count_discrepancy": result or 0
+                    "count_discrepancy":
+                        result.count_discrepancy or 0,
+
+                    "count_without_discrepancy":
+                        result.count_without_discrepancy or 0
                 }
 
             except Exception as exception:
                 logger.error('Error: {}', str(exception), internal=internal, external=external)
                 if isinstance(exception, CustomAPIException):
                     raise exception
-                
                 raise CustomAPIException("Error al obtener despachos con discrepancia", 500)
             
 
@@ -1237,6 +1274,9 @@ class DispatchRepository:
 
                 if filtersBase.get("end_date"):
                     filters = and_(filters, BiomarAccessControl.created_at <= filtersBase.get("end_date"))
+
+                if filtersBase.get("type_process"):
+                    filters = and_(filters, Dispatch.type_process == filtersBase.get("type_process"))
 
                 stmt = (
                     select(
@@ -1409,3 +1449,187 @@ class DispatchRepository:
                     raise exception
 
                 raise CustomAPIException("Error al obtener el ranking de materiales", 500)
+
+    def get_dispatch_discrepancy_last_7_days(self, filtersBase, internal, external):
+        with self.db.session_factory() as session:
+            try:
+
+                last_7_days = datetime.now() - timedelta(days=6)
+
+                discrepancy_exists = exists().where(
+                    and_(
+                        DispatchReception.dispatch_id == Dispatch.id_dispatch,
+                        DispatchReceptionDetail.reception_id == DispatchReception.id_reception
+                    )
+                )
+
+                stmt = (
+                    select(
+                        cast(Dispatch.created_at, Date).label("date"),
+
+                        func.sum(
+                            case(
+                                (discrepancy_exists, 1),
+                                else_=0
+                            )
+                        ).label("with_discrepancy"),
+
+                        func.sum(
+                            case(
+                                (~discrepancy_exists, 1),
+                                else_=0
+                            )
+                        ).label("without_discrepancy")
+                    )
+                    .where(
+                        Dispatch.created_at >= last_7_days
+                    )
+                    .group_by(
+                        cast(Dispatch.created_at, Date)
+                    )
+                    .order_by(
+                        cast(Dispatch.created_at, Date)
+                    )
+                )
+
+                # filtros dinámicos
+                filters = []
+
+                if filtersBase.get("user"):
+                    filters.append(
+                        Dispatch.created_by == filtersBase.get("user")
+                    )
+
+                if filtersBase.get("type_process"):
+                    filters.append(Dispatch.type_process == filtersBase.get("type_process"))
+
+                if filters:
+                    stmt = stmt.where(and_(*filters))
+
+                result = session.execute(stmt).all()
+
+                # convertir a dict temporal
+                db_data = {
+                    str(row.date): {
+                        "with_discrepancy": row.with_discrepancy,
+                        "without_discrepancy": row.without_discrepancy
+                    }
+                    for row in result
+                }
+
+                # llenar últimos 7 días
+                response = []
+
+                days_es = {
+                    0: "Lunes",
+                    1: "Martes",
+                    2: "Miércoles",
+                    3: "Jueves",
+                    4: "Viernes",
+                    5: "Sábado",
+                    6: "Domingo"
+                }
+
+                for i in range(6, -1, -1):
+
+                    current_date = (
+                        datetime.now() - timedelta(days=i)
+                    ).date()
+
+                    current_date_str = str(current_date)
+
+                    data = db_data.get(
+                        current_date_str,
+                        {
+                            "with_discrepancy": 0,
+                            "without_discrepancy": 0
+                        }
+                    )
+
+                    response.append({
+                        "day": days_es[current_date.weekday()],
+                        "date": current_date_str,
+                        "with_discrepancy":
+                            data["with_discrepancy"],
+                        "without_discrepancy":
+                            data["without_discrepancy"]
+                    })
+
+                return response
+
+            except Exception as exception:
+                logger.error('Error: {}', str(exception), internal=internal, external=external)
+                if isinstance(exception, CustomAPIException):
+                    raise exception
+                raise CustomAPIException("Error al obtener gráfico de discrepancias", 500)
+            
+
+    def get_product_count_client(self, filtersBase, internal, external):
+        with self.db.session_factory() as session:
+            try:
+                stmt = select(
+                    # BODEGA
+                    func.sum(
+                        case(
+                            (
+                                and_(
+                                    Dispatch.type_process == 'product_intern',
+                                    Dispatch.destiny_id.isnot(None)
+                                ),
+                                1
+                            ),
+                            else_=0
+                        )
+                    ).label("warehouse_count"),
+
+                    # CLIENTE
+                    func.sum(
+                        case(
+                            (
+                                and_(
+                                    Dispatch.type_process == 'product_intern',
+                                    Dispatch.destiny_product.isnot(None)
+                                ),
+                                1
+                            ),
+                            else_=0
+                        )
+                    ).label("client_count")
+
+                )
+
+                filters = []
+
+                if filtersBase.get("user"):
+                    filters.append(
+                        Dispatch.created_by == filtersBase.get("user")
+                    )
+
+                if filtersBase.get("start_date"):
+                    filters.append(
+                        Dispatch.created_at >= filtersBase.get("start_date")
+                    )
+
+                if filtersBase.get("end_date"):
+                    filters.append(
+                        Dispatch.created_at <= filtersBase.get("end_date")
+                    )
+
+                if filters:
+                    stmt = stmt.where(and_(*filters))
+
+                result = session.execute(stmt).first()
+
+                return {
+                    "warehouse_count":
+                        result.warehouse_count or 0,
+
+                    "client_count":
+                        result.client_count or 0
+                }
+
+            except Exception as exception:
+                logger.error('Error: {}', str(exception), internal=internal, external=external)
+                if isinstance(exception, CustomAPIException):
+                    raise exception
+                raise CustomAPIException("Error al obtener conteo por destino", 500)

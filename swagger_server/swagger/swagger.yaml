@@ -633,6 +633,12 @@ paths:
       description: Devuelve todos los despachos de la base
       operationId: get_dispatch
       parameters:
+      - name: type-process
+        in: header
+        required: false
+        schema:
+          type: string
+          example: "dispatch"
       - name: destiny
         in: header
         required: false
@@ -807,6 +813,12 @@ paths:
       description: Devuelve todos los porcentajes para graficos
       operationId: get_resume_graphs
       parameters:
+        - name: type-process
+          in: header
+          required: false
+          schema:
+            type: string
+            example: "dispatch"
         - name: start_date
           in: query
           required: false

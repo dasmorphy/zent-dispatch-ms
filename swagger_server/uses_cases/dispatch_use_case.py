@@ -185,7 +185,7 @@ class DispatchUseCase:
         top_materials = self.dispatch_repository.get_top_materials_access(filters, internal, external)
 
 
-        if filters.get("type_process") == "product_term":
+        if filters.get("type_process") == "product":
             product_term = self.dispatch_repository.get_product_count_client(filters, internal, external)
 
 

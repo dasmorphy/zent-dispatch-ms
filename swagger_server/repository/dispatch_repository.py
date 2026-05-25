@@ -57,15 +57,15 @@ class DispatchRepository:
                         "type_sku": sku["type_sku"],
                         "dispatch_id": dispatch_saved.id_dispatch
                     }
-                    sku_saved = self.saveSku(session, new_sku, internal, external)
-                    for product in sku["products"]:
-                        self.saveProductSku(
-                            session,
-                            sku_saved.id_sku,
-                            product,
-                            internal,
-                            external
-                        )
+                    self.saveSku(session, new_sku, internal, external)
+                    # for product in sku["products"]:
+                    #     self.saveProductSku(
+                    #         session,
+                    #         sku_saved.id_sku,
+                    #         product,
+                    #         internal,
+                    #         external
+                    #     )
 
                 # Guardar imágenes (máx 10)
                 for file in images[:10]:

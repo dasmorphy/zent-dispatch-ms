@@ -15,7 +15,7 @@ class RequestDispatchDispatchData(Model):
 
     Do not edit the class manually.
     """
-    def __init__(self, weight: float=None, vehicle_type: int=None, destiny: int=None, status_id: int=None, order_number: str=None, truck_license: str=None, user: str=None, driver: str=None, type_process: str=None, images: List[str]=None, sku: List[RequestSkuData]=None, observations: str=None):  # noqa: E501
+    def __init__(self, weight: float=None, vehicle_type: int=None, destiny: int=None, status_id: int=None, order_number: str=None, truck_license: str=None, user: str=None, driver: str=None, type_process: str=None, destiny_product: str=None, images: List[str]=None, sku: List[RequestSkuData]=None, observations: str=None):  # noqa: E501
         """RequestDispatchDispatchData - a model defined in Swagger
 
         :param weight: The weight of this RequestDispatchDispatchData.  # noqa: E501
@@ -36,6 +36,8 @@ class RequestDispatchDispatchData(Model):
         :type driver: str
         :param type_process: The type_process of this RequestDispatchDispatchData.  # noqa: E501
         :type type_process: str
+        :param destiny_product: The destiny_product of this RequestDispatchDispatchData.  # noqa: E501
+        :type destiny_product: str
         :param images: The images of this RequestDispatchDispatchData.  # noqa: E501
         :type images: List[str]
         :param sku: The sku of this RequestDispatchDispatchData.  # noqa: E501
@@ -53,6 +55,7 @@ class RequestDispatchDispatchData(Model):
             'user': str,
             'driver': str,
             'type_process': str,
+            'destiny_product': str,
             'images': List[str],
             'sku': List[RequestSkuData],
             'observations': str
@@ -68,6 +71,7 @@ class RequestDispatchDispatchData(Model):
             'user': 'user',
             'driver': 'driver',
             'type_process': 'type_process',
+            'destiny_product': 'destiny_product',
             'images': 'images',
             'sku': 'sku',
             'observations': 'observations'
@@ -81,6 +85,7 @@ class RequestDispatchDispatchData(Model):
         self._user = user
         self._driver = driver
         self._type_process = type_process
+        self._destiny_product = destiny_product
         self._images = images
         self._sku = sku
         self._observations = observations
@@ -284,6 +289,27 @@ class RequestDispatchDispatchData(Model):
         """
 
         self._type_process = type_process
+
+    @property
+    def destiny_product(self) -> str:
+        """Gets the destiny_product of this RequestDispatchDispatchData.
+
+
+        :return: The destiny_product of this RequestDispatchDispatchData.
+        :rtype: str
+        """
+        return self._destiny_product
+
+    @destiny_product.setter
+    def destiny_product(self, destiny_product: str):
+        """Sets the destiny_product of this RequestDispatchDispatchData.
+
+
+        :param destiny_product: The destiny_product of this RequestDispatchDispatchData.
+        :type destiny_product: str
+        """
+
+        self._destiny_product = destiny_product
 
     @property
     def images(self) -> List[str]:

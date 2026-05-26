@@ -1001,6 +1001,10 @@ components:
           nullable: true
           type: string
           example: product
+        destiny_product:
+          nullable: true
+          type: string
+          example: finca
         images:
           nullable: true
           maxItems: 10

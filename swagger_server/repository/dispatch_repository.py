@@ -227,6 +227,7 @@ class DispatchRepository:
                 created_by=data.user,
                 updated_by=data.user,
                 type_process=data.type_process,
+                destiny_product=data.destiny_product,
                 status_id=1
             )
             

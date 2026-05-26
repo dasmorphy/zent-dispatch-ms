@@ -601,10 +601,10 @@ class DispatchRepository:
                         
                         reception_detail = DispatchReceptionDetail(
                             reception_id=reception_data.id_reception,
-                            expected_quantity=detail["expected_quantity"],
-                            received_quantity=detail["received_quantity"],
-                            product_sku_id=detail["product_sku_id"],
-                            observations=detail["observations"]
+                            expected_quantity=detail.get("expected_quantity"),
+                            received_quantity=detail.get("received_quantity"),
+                            product_sku_id=detail.get("product_sku_id"),
+                            observations=detail.get("observations")
                         )
                         session.add(reception_detail)
 

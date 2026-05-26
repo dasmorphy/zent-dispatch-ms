@@ -1589,7 +1589,7 @@ class DispatchRepository:
                         case(
                             (
                                 and_(
-                                    Dispatch.type_process == 'product_intern',
+                                    Dispatch.type_process == 'product',
                                     Dispatch.destiny_product.isnot(None)
                                 ),
                                 1

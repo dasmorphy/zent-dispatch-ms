@@ -29,7 +29,7 @@ class DispatchReceptionDetail(Base):
 
     product_sku_id = Column(
         Integer,
-        ForeignKey('public.products_sku.id_product_sku', onupdate='NO ACTION', ondelete='NO ACTION'),
+        ForeignKey('public.dispatch_skus.id_sku', onupdate='NO ACTION', ondelete='NO ACTION'),
     )
 
     expected_quantity = Column(Integer)

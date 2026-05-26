@@ -1072,9 +1072,11 @@ components:
           type: integer
           example: 1
         expected_quantity:
+          nullable: true
           type: integer
           example: 1
         received_quantity:
+          nullable: true
           type: integer
           example: 1
         observations:

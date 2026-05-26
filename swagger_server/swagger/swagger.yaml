@@ -997,6 +997,10 @@ components:
           nullable: true
           type: string
           example: Daniel
+        type_process:
+          nullable: true
+          type: string
+          example: product
         images:
           nullable: true
           maxItems: 10

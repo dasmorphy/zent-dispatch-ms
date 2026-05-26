@@ -226,6 +226,7 @@ class DispatchRepository:
                 truck_license=data.truck_license,
                 created_by=data.user,
                 updated_by=data.user,
+                type_process=data.type_process,
                 status_id=1
             )
             

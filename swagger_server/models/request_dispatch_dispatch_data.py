@@ -15,7 +15,7 @@ class RequestDispatchDispatchData(Model):
 
     Do not edit the class manually.
     """
-    def __init__(self, weight: float=None, vehicle_type: int=None, destiny: int=None, status_id: int=None, order_number: str=None, truck_license: str=None, user: str=None, driver: str=None, images: List[str]=None, sku: List[RequestSkuData]=None, observations: str=None):  # noqa: E501
+    def __init__(self, weight: float=None, vehicle_type: int=None, destiny: int=None, status_id: int=None, order_number: str=None, truck_license: str=None, user: str=None, driver: str=None, type_process: str=None, images: List[str]=None, sku: List[RequestSkuData]=None, observations: str=None):  # noqa: E501
         """RequestDispatchDispatchData - a model defined in Swagger
 
         :param weight: The weight of this RequestDispatchDispatchData.  # noqa: E501
@@ -34,6 +34,8 @@ class RequestDispatchDispatchData(Model):
         :type user: str
         :param driver: The driver of this RequestDispatchDispatchData.  # noqa: E501
         :type driver: str
+        :param type_process: The type_process of this RequestDispatchDispatchData.  # noqa: E501
+        :type type_process: str
         :param images: The images of this RequestDispatchDispatchData.  # noqa: E501
         :type images: List[str]
         :param sku: The sku of this RequestDispatchDispatchData.  # noqa: E501
@@ -50,6 +52,7 @@ class RequestDispatchDispatchData(Model):
             'truck_license': str,
             'user': str,
             'driver': str,
+            'type_process': str,
             'images': List[str],
             'sku': List[RequestSkuData],
             'observations': str
@@ -64,6 +67,7 @@ class RequestDispatchDispatchData(Model):
             'truck_license': 'truck_license',
             'user': 'user',
             'driver': 'driver',
+            'type_process': 'type_process',
             'images': 'images',
             'sku': 'sku',
             'observations': 'observations'
@@ -76,6 +80,7 @@ class RequestDispatchDispatchData(Model):
         self._truck_license = truck_license
         self._user = user
         self._driver = driver
+        self._type_process = type_process
         self._images = images
         self._sku = sku
         self._observations = observations
@@ -258,6 +263,27 @@ class RequestDispatchDispatchData(Model):
         """
 
         self._driver = driver
+
+    @property
+    def type_process(self) -> str:
+        """Gets the type_process of this RequestDispatchDispatchData.
+
+
+        :return: The type_process of this RequestDispatchDispatchData.
+        :rtype: str
+        """
+        return self._type_process
+
+    @type_process.setter
+    def type_process(self, type_process: str):
+        """Sets the type_process of this RequestDispatchDispatchData.
+
+
+        :param type_process: The type_process of this RequestDispatchDispatchData.
+        :type type_process: str
+        """
+
+        self._type_process = type_process
 
     @property
     def images(self) -> List[str]:

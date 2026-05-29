@@ -407,25 +407,25 @@ class DispatchRepository:
                     .subquery()
                 )
 
-                products_sku_subq = (
-                    select(
-                        ProductsSku.sku_id,
-                        func.json_agg(
-                            func.json_build_object(
-                                "id_product", ProductsSku.product_id,
-                                "id_product_sku", ProductsSku.id_product_sku,
-                                "name", DispatchProducts.name,
-                                "quantity", ProductsSku.quantity
-                            )
-                        ).label("products_sku")
-                    )
-                    .join(
-                        DispatchProducts,
-                        DispatchProducts.id_product == ProductsSku.product_id
-                    )
-                    .group_by(ProductsSku.sku_id)
-                    .subquery()
-                )
+                # products_sku_subq = (
+                #     select(
+                #         ProductsSku.sku_id,
+                #         func.json_agg(
+                #             func.json_build_object(
+                #                 "id_product", ProductsSku.product_id,
+                #                 "id_product_sku", ProductsSku.id_product_sku,
+                #                 "name", DispatchProducts.name,
+                #                 "quantity", ProductsSku.quantity
+                #             )
+                #         ).label("products_sku")
+                #     )
+                #     .join(
+                #         DispatchProducts,
+                #         DispatchProducts.id_product == ProductsSku.product_id
+                #     )
+                #     .group_by(ProductsSku.sku_id)
+                #     .subquery()
+                # )
 
                 skus_subq = (
                     select(
@@ -434,14 +434,14 @@ class DispatchRepository:
                             func.json_build_object(
                                 "id_sku", DispatchSkus.id_sku,
                                 "type_sku", DispatchSkus.type_sku,
-                                "products", func.coalesce(products_sku_subq.c.products_sku, '[]')
+                                # "products", func.coalesce(products_sku_subq.c.products_sku, '[]')
                             )
                         ).label("skus")
                     )
-                    .outerjoin(
-                        products_sku_subq,
-                        products_sku_subq.c.sku_id == DispatchSkus.id_sku
-                    )
+                    # .outerjoin(
+                    #     products_sku_subq,
+                    #     products_sku_subq.c.sku_id == DispatchSkus.id_sku
+                    # )
                     .group_by(DispatchSkus.dispatch_id)
                     .subquery()
                 )
@@ -452,23 +452,23 @@ class DispatchRepository:
                         func.json_agg(
                             func.json_build_object(
                                 "reception_id", DispatchReceptionDetail.reception_id,
-                                "expected_quantity", DispatchReceptionDetail.expected_quantity,
-                                "received_quantity", DispatchReceptionDetail.received_quantity,
+                                # "expected_quantity", DispatchReceptionDetail.expected_quantity,
+                                # "received_quantity", DispatchReceptionDetail.received_quantity,
                                 "observations", DispatchReceptionDetail.observations,
-                                "product_sku_id", DispatchReceptionDetail.product_sku_id,
-                                "name_product_sku", DispatchProducts.name,
+                                "sku_id", DispatchReceptionDetail.product_sku_id,
+                                # "name_product_sku", DispatchProducts.name,
                                 "created_at", DispatchReceptionDetail.created_at,
                             )
                         ).label("details")
                     )
-                    .outerjoin(
-                        ProductsSku,
-                        ProductsSku.id_product_sku == DispatchReceptionDetail.product_sku_id
-                    )
-                    .outerjoin(
-                        DispatchProducts,
-                        DispatchProducts.id_product == ProductsSku.product_id
-                    )
+                    # .outerjoin(
+                    #     ProductsSku,
+                    #     ProductsSku.id_product_sku == DispatchReceptionDetail.product_sku_id
+                    # )
+                    # .outerjoin(
+                    #     DispatchProducts,
+                    #     DispatchProducts.id_product == ProductsSku.product_id
+                    # )
                     .group_by(DispatchReceptionDetail.reception_id)
                     .subquery()
                 )

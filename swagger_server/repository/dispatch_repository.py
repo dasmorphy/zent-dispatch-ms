@@ -1100,6 +1100,10 @@ class DispatchRepository:
                 if filtersBase.get("type_process"):
                     join_condition = and_(join_condition, Dispatch.type_process == filtersBase.get("type_process"))
 
+                if filtersBase.get("destiny"):
+                    join_condition = and_(join_condition, Dispatch.destiny_id.in_(filtersBase.get("destiny")))
+
+
                 stmt = (
                     select(
                         DispatchStatus.id_status,
@@ -1226,6 +1230,9 @@ class DispatchRepository:
                 if filtersBase.get("end_date"):
                     filters = and_(filters, BiomarAccessControl.created_at <= filtersBase.get("end_date"))
 
+                if filtersBase.get("destiny"):
+                    filters = and_(filters, Dispatch.destiny_id.in_(filtersBase.get("destiny")))
+
                 stmt = (
                     select(
                         BiomarAccessControl.status,
@@ -1280,6 +1287,9 @@ class DispatchRepository:
 
                 if filtersBase.get("type_process"):
                     filters = and_(filters, Dispatch.type_process == filtersBase.get("type_process"))
+
+                if filtersBase.get("destiny"):
+                    filters = and_(filters, Dispatch.destiny_id.in_(filtersBase.get("destiny")))
 
                 stmt = (
                     select(
@@ -1344,6 +1354,9 @@ class DispatchRepository:
                         filters,
                         BiomarAccessControl.created_at <= filtersBase.get("end_date")
                     )
+
+                if filtersBase.get("destiny"):
+                    filters = and_(filters, Dispatch.destiny_id.in_(filtersBase.get("destiny")))
 
                 stmt = (
                     select(
@@ -1506,6 +1519,19 @@ class DispatchRepository:
                 if filtersBase.get("type_process"):
                     filters.append(Dispatch.type_process == filtersBase.get("type_process"))
 
+                if filtersBase.get("destiny"):
+                    filters.append(Dispatch.destiny_id.in_(filtersBase.get("destiny")))
+
+                if filtersBase.get("start_date"):
+                    filters.append(
+                        Dispatch.created_at >= filtersBase.get("start_date")
+                    )
+                    
+                if filtersBase.get("end_date"):
+                    filters.append(
+                        Dispatch.created_at <= filtersBase.get("end_date")
+                    )
+
                 if filters:
                     stmt = stmt.where(and_(*filters))
 
@@ -1616,6 +1642,11 @@ class DispatchRepository:
                 if filtersBase.get("end_date"):
                     filters.append(
                         Dispatch.created_at <= filtersBase.get("end_date")
+                    )
+
+                if filtersBase.get("destiny"):
+                    filters.append(
+                        Dispatch.destiny_id.in_(filtersBase.get("destiny"))
                     )
 
                 if filters:

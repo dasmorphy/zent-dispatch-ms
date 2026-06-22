@@ -956,11 +956,12 @@ class DispatchRepository:
                             func.json_build_object(
                                 "id_material", AcessControlMaterials.material_id,
                                 "name", BiomarMaterialsAccess.name,
-                                "quantity", AcessControlMaterials.quantity
+                                "quantity", AcessControlMaterials.quantity,
+                                "other_material", AcessControlMaterials.other_material
                             )
                         ).label("materials")
                     )
-                    .join(
+                    .outerjoin(
                         BiomarMaterialsAccess,
                         BiomarMaterialsAccess.id_material == AcessControlMaterials.material_id
                     )

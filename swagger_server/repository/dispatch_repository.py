@@ -673,10 +673,11 @@ class DispatchRepository:
                 if not area_exists:
                     raise CustomAPIException("Área de visita no encontrada", 404)
                 
-                staff_exists = session.get(StaffCharge, body.person_charge)
+                if (body.person_charge):
+                    staff_exists = session.get(StaffCharge, body.person_charge)
 
-                if not staff_exists:
-                    raise CustomAPIException("Personal a cargo no encontrado", 404)
+                    if not staff_exists:
+                        raise CustomAPIException("Personal a cargo no encontrado", 404)
                 
                 access_control = BiomarAccessControl(
                     dni=body.dni,
@@ -684,6 +685,7 @@ class DispatchRepository:
                     reason_visit=body.reason_visit,
                     area_visit_id=body.area_visit,
                     staff_charge_id=body.person_charge,
+                    other_staff=body.other_staff,
                     observations_entry=body.observations,
                     created_by=body.user,
                     updated_by=body.user,

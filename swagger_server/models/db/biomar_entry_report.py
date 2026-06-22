@@ -38,6 +38,7 @@ class BiomarAccessControl(Base):
         ForeignKey('public.staff_charge.id_staff', onupdate='NO ACTION', ondelete='NO ACTION'),
     )
 
+    other_staff = Column(Text)
 
     observations_entry = Column(Text)
     observations_out = Column(Text)

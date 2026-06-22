@@ -1119,6 +1119,10 @@ components:
           nullable: true
           type: integer
           example: 1
+        other_staff:
+          nullable: true
+          type: string
+          example: "Daniel"
         type_access:
           nullable: true
           type: string

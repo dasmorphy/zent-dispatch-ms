@@ -957,10 +957,15 @@ components:
       properties:
         id_material:
           type: integer
+          nullable: true
           example: 1
         quantity:
           type: number
           example: 10
+        other_material:
+          type: string
+          nullable: true
+          example: "X"
     RequestDispatch_dispatch_data:
       type: object
       properties:

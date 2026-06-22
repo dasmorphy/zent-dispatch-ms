@@ -753,21 +753,25 @@ class DispatchRepository:
 
     def saveMaterialAccessControl(self, session, access_control_id: int, data, internal, external):
         try:
-            material_exists = session.execute(
-                select(
-                    exists().where(
-                        BiomarMaterialsAccess.id_material == data["id_material"]
-                    )
-                )
-            ).scalar()
 
-            if not material_exists:
-                raise CustomAPIException("El material no existe", 404)
+            if (data.get("id_material")):
+                material_exists = session.execute(
+                    select(
+                        exists().where(
+                            BiomarMaterialsAccess.id_material == data["id_material"]
+                        )
+                    )
+                ).scalar()
+
+                if not material_exists:
+                    raise CustomAPIException("El material no existe", 404)
+
             
             material_control = AcessControlMaterials(
                 access_control_id=access_control_id,
                 quantity=data["quantity"],
-                material_id=data["id_material"]
+                material_id=data.get("id_material"),
+                other_material=data.get("other_material")
             )
             
             session.add(material_control)

@@ -14,25 +14,30 @@ class MaterialAccessData(Model):
 
     Do not edit the class manually.
     """
-    def __init__(self, id_material: int=None, quantity: float=None):  # noqa: E501
+    def __init__(self, id_material: int=None, quantity: float=None, other_material: str=None):  # noqa: E501
         """MaterialAccessData - a model defined in Swagger
 
         :param id_material: The id_material of this MaterialAccessData.  # noqa: E501
         :type id_material: int
         :param quantity: The quantity of this MaterialAccessData.  # noqa: E501
         :type quantity: float
+        :param other_material: The other_material of this MaterialAccessData.  # noqa: E501
+        :type other_material: str
         """
         self.swagger_types = {
             'id_material': int,
-            'quantity': float
+            'quantity': float,
+            'other_material': str
         }
 
         self.attribute_map = {
             'id_material': 'id_material',
-            'quantity': 'quantity'
+            'quantity': 'quantity',
+            'other_material': 'other_material'
         }
         self._id_material = id_material
         self._quantity = quantity
+        self._other_material = other_material
 
     @classmethod
     def from_dict(cls, dikt) -> 'MaterialAccessData':
@@ -86,3 +91,24 @@ class MaterialAccessData(Model):
         """
 
         self._quantity = quantity
+
+    @property
+    def other_material(self) -> str:
+        """Gets the other_material of this MaterialAccessData.
+
+
+        :return: The other_material of this MaterialAccessData.
+        :rtype: str
+        """
+        return self._other_material
+
+    @other_material.setter
+    def other_material(self, other_material: str):
+        """Sets the other_material of this MaterialAccessData.
+
+
+        :param other_material: The other_material of this MaterialAccessData.
+        :type other_material: str
+        """
+
+        self._other_material = other_material

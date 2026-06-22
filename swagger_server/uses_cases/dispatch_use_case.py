@@ -63,6 +63,7 @@ class DispatchUseCase:
                 "truck_license": dispatch.truck_license,
                 "weight": dispatch.weight,
                 "observations": dispatch.observations,
+                "type_process": dispatch.type_process,
                 "created_at": dispatch.created_at,
                 "updated_at": dispatch.updated_at,
                 "created_by": dispatch.created_by,

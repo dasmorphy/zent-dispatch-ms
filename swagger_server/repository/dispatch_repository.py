@@ -983,7 +983,7 @@ class DispatchRepository:
                         AreaVisit,
                         AreaVisit.id_area == BiomarAccessControl.area_visit_id
                     )
-                    .join(
+                    .outerjoin(
                         StaffCharge,
                         StaffCharge.id_staff == BiomarAccessControl.staff_charge_id
                     )

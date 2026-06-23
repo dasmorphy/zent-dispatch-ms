@@ -184,6 +184,10 @@ class DispatchUseCase:
             filters, internal, external
         )
 
+        skus_store = self.dispatch_repository.get_skus_count_store(
+            filters, internal, external
+        )
+
         top_materials = self.dispatch_repository.get_top_materials_access(filters, internal, external)
 
 
@@ -195,6 +199,7 @@ class DispatchUseCase:
             "product_term": product_term,
             "discrepancy_7_days": discrepancy_last_7_days,
             "dispatch_by_status": dispatch_by_status,
+            "skus_store": skus_store,
             "destiny_count": destiny_count,
             "discrepancy": discrepancy["count_discrepancy"],
             "without_discrepancy": discrepancy["count_without_discrepancy"],

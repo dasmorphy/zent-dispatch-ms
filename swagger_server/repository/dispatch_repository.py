@@ -1090,6 +1090,58 @@ class DispatchRepository:
             finally:
                 session.close()
 
+    def get_skus_count_store(self, filtersBase, internal, external):
+        with self.db.session_factory() as session:
+            try:
+                conditions = [
+                    DispatchSkus.dispatch_id == Dispatch.id_dispatch,
+                    Dispatch.status_id == 3
+                ]
+
+                if filtersBase.get("user"):
+                    conditions.append(Dispatch.created_by == filtersBase.get("user"))
+
+                if filtersBase.get("start_date"):
+                    conditions.append(Dispatch.created_at >= filtersBase.get("start_date"))
+
+                if filtersBase.get("end_date"):
+                    conditions.append(Dispatch.created_at <= filtersBase.get("end_date"))
+
+                if filtersBase.get("type_process"):
+                    conditions.append(
+                        Dispatch.type_process == filtersBase.get("type_process")
+                    )
+
+                if filtersBase.get("destiny"):
+                    conditions.append(Dispatch.destiny_id.in_(filtersBase.get("destiny")))
+
+                stmt = (
+                    select(
+                        func.count(DispatchSkus.id_sku).label("count")
+                    )
+                    .select_from(DispatchSkus)
+                    .join(
+                        Dispatch,
+                        DispatchSkus.dispatch_id == Dispatch.id_dispatch
+                    )
+                    .where(and_(*conditions))
+                )
+
+                result = session.execute(stmt).scalar() or 0
+
+                return {
+                    "status_id": 3,
+                    "sku_count": result
+                }
+
+            except Exception as exception:
+                logger.error('Error: {}', str(exception), internal=internal, external=external)
+                if isinstance(exception, CustomAPIException):
+                    raise exception
+
+                raise CustomAPIException("Error al obtener el conteo de SKUs en estado 3", 500)
+            
+
     def get_dispatch_count_by_status(self, filtersBase, internal, external):
         with self.db.session_factory() as session:
             try:

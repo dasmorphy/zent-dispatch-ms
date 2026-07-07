@@ -511,7 +511,7 @@ class DispatchRepository:
                             else_=None
                         ).label("reception")
                     )
-                    .join(
+                    .outerjoin(
                         DestinyIntern,
                         DestinyIntern.id_destiny == Dispatch.destiny_id
                     )
@@ -519,7 +519,7 @@ class DispatchRepository:
                         DispatchStatus,
                         DispatchStatus.id_status == Dispatch.status_id
                     )
-                    .join(
+                    .outerjoin(
                         VehicleType,
                         VehicleType.id_vehicle_type == Dispatch.vehicle_type_id
                     )

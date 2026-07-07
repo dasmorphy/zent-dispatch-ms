@@ -194,28 +194,28 @@ class DispatchRepository:
     def saveDispatch(self, session, data: RequestDispatchDispatchData, internal, external):
         try:
 
-            vehicle_exists = session.execute(
-                select(
-                    exists().where(
-                        VehicleType.id_vehicle_type == data.vehicle_type
-                    )
-                )
-            ).scalar()
+            # vehicle_exists = session.execute(
+            #     select(
+            #         exists().where(
+            #             VehicleType.id_vehicle_type == data.vehicle_type
+            #         )
+            #     )
+            # ).scalar()
 
-            if not vehicle_exists:
-                raise CustomAPIException("El tipo de vehículo no existe", 404)
+            # if not vehicle_exists:
+            #     raise CustomAPIException("El tipo de vehículo no existe", 404)
             
-            if data.destiny is not None:
-                destiny_exists = session.execute(
-                    select(
-                        exists().where(
-                            DestinyIntern.id_destiny == data.destiny
-                        )
-                    )
-                ).scalar()
+            # if data.destiny is not None:
+            #     destiny_exists = session.execute(
+            #         select(
+            #             exists().where(
+            #                 DestinyIntern.id_destiny == data.destiny
+            #             )
+            #         )
+            #     ).scalar()
 
-                if not destiny_exists:
-                    raise CustomAPIException("El destino no existe", 404)
+            #     if not destiny_exists:
+            #         raise CustomAPIException("El destino no existe", 404)
             
             dispatch = Dispatch(
                 order_number=data.order_number,
